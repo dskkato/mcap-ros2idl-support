@@ -1,0 +1,30 @@
+{
+  "name": "mcap-schema-cli",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "bin": {
+    "mcap-schema-cli": "dist/index.js"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "dev": "tsc && node dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^24.1.0",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@foxglove/ros2idl-parser": "^0.3.5",
+    "@foxglove/rosmsg": "^5.0.4",
+    "@mcap/core": "^2.1.7",
+    "@mcap/nodejs": "^1.0.2",
+    "@mcap/support": "^1.0.4",
+    "commander": "^14.0.0"
+  }
+}
