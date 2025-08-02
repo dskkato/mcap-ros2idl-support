@@ -85,8 +85,6 @@ program
           var definitions = await parseRos2msg(idlText);
           definitions[0]["name"] = schema.name; // Set the name to the schema ID
           outputData[schema.id] = definitions;
-          logger.log(`Parsed ROS 2 message definition for schema ID: ${schema.id}`);
-          logger.log(`Message definition: ${JSON.stringify(outputData[schema.id], null, 2)}`);
         } else {
           logger.warn(`Unsupported schema encoding: ${schema.encoding} for schema ID: ${schema.id}`);
           continue;
