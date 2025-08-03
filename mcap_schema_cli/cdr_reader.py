@@ -38,7 +38,7 @@ class CdrReader:
         padding = (size - (relative_offset % size)) % size
         self.stream.seek(padding, io.SEEK_CUR)
 
-    def _read_message(self, msg_type: 'MessageType'):
+    def _read_message(self, msg_type: "MessageType"):
         result = {}
         for field in msg_type.fields:
             print(f"Reading field: {field.name} of type {field.type}")
