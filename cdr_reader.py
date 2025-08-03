@@ -54,7 +54,7 @@ class CdrReader:
         return result
 
     def _read_array(self, field):
-        # シーケンスの長さは UInt32 prefix 付き
+        # Sequence length is prefixed with UInt32
         length = self._read_primitive("uint32")
         items = []
         for _ in range(length):
