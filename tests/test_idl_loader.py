@@ -2,10 +2,9 @@ import json
 import sys
 from pathlib import Path
 
-# Ensure the package can be imported without installation
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from mcap_schema_cli.idl_loader import load_idl
+from mcap_schema_cli.idl_loader import load_idl  # noqa: E402
 
 
 def test_load_idl(tmp_path):
