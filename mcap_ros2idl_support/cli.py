@@ -61,7 +61,7 @@ def main() -> None:
             if schema.schema_id not in id_to_cdr_reader:
                 print(f"Schema ID {schema.schema_id} not found in type definitions.")
                 continue
-            msg = id_to_cdr_reader[schema.schema_id].read(topic.name, message.data)
+            msg = id_to_cdr_reader[schema.schema_id].read(schema.name, message.data)
             print(json.dumps(msg, indent=2))
 
 
