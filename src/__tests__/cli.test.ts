@@ -47,7 +47,7 @@ test("CLI outputs parsed schemas", async () => {
 
     // Build the CLI and run it against the generated MCAP
     await execFileAsync("npm", ["run", "build"]);
-    const { stdout } = await execFileAsync("node", ["dist/index.js", mcapPath], {
+    const { stdout } = await execFileAsync("node", ["mcap_schema_cli/dist/index.js", mcapPath], {
       encoding: "utf8",
     });
 

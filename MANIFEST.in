@@ -1,0 +1,3 @@
+include mcap_schema_cli/dist/index.js
+include mcap_schema_cli/dist/parseSchemas.js
+include mcap_schema_cli/dist/readSchemas.js
