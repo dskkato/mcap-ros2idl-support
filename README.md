@@ -39,6 +39,49 @@ mcap-schema-cli-js sample.mcap -o schemas.json
 python3 -m mcap_schema_cli --type-definitions schemas.json --mcap-file sample.mcap
 ```
 
+## Building the wheel
+
+This project bundles a Node.js CLI into the Python package. When generating a
+wheel for distribution, remove any previous build artifacts so that Node.js
+build output doesn't conflict with Python's `dist/` directory.
+
+1. Clean old artifacts:
+
+   ```bash
+   rm -rf dist
+   ```
+
+2. Install the build backend:
+
+   ```bash
+   python -m pip install --upgrade build
+   ```
+
+3. Bundle the Node.js CLI:
+
+   ```bash
+   npm run deploy
+   ```
+
+4. Build the wheel:
+
+   ```bash
+   python -m build
+   ```
+
+5. (Optional) Verify the wheel locally:
+
+   ```bash
+   python -m pip install dist/mcap_schema_cli-<version>-py3-none-any.whl
+   ```
+
+6. (Optional) Upload to PyPI:
+
+   ```bash
+   python -m pip install --upgrade twine
+   python -m twine upload dist/*
+   ```
+
 ## Design notes
 
 - Uses Foxglove’s `@foxglove/ros2idl-parser` to handle `.idl` files in addition to classic `.msg` definitions.
