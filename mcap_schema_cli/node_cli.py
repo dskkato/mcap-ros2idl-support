@@ -18,5 +18,7 @@ def main() -> None:
         if e.stderr:
             print("Error output:", e.stderr, file=sys.stderr)
         sys.exit(e.returncode if e.returncode is not None else 1)
+
+
 if __name__ == "__main__":
     main()
