@@ -4,7 +4,7 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "esModuleInterop": true,
-    "outDir": "mcap_schema_cli/dist",
+    "outDir": "dist",
     "rootDir": "src",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
