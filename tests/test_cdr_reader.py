@@ -1,5 +1,5 @@
-import sys
 import struct
+import sys
 from pathlib import Path
 
 # Insert the parent directory at the start of sys.path to ensure tests use the local (uninstalled) version of the package.
