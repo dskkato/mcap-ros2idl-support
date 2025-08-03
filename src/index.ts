@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import { Command } from "commander";
 import * as fs from "fs";
 import { stdout } from "process";

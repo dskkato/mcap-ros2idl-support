@@ -2,7 +2,6 @@
 
 import json
 import os
-import subprocess
 import sys
 import tempfile
 from argparse import ArgumentParser
@@ -11,6 +10,7 @@ from mcap.reader import make_reader
 
 from .cdr_reader import CdrReader
 from .idl_loader import load_idl
+from .node_cli import run_node_cli
 
 
 def main() -> None:
@@ -42,10 +42,7 @@ def main() -> None:
         cleanup = True
         with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as tmp:
             type_defs_path = tmp.name
-        subprocess.run(
-            ["mcap-schema-cli", args.mcap_file, "-o", type_defs_path],
-            check=True,
-        )
+        run_node_cli([args.mcap_file, "-o", type_defs_path])
 
     schemas = load_idl(type_defs_path)
     id_to_cdr_reader = {

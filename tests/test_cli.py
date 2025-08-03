@@ -3,8 +3,10 @@ from pathlib import Path
 from subprocess import CompletedProcess
 from unittest.mock import patch
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+sys.modules.pop("mcap_schema_cli", None)
+sys.modules.pop("mcap_schema_cli.cli", None)
 from mcap_schema_cli import cli  # noqa: E402
 
 
@@ -27,5 +29,5 @@ def test_cli_invokes_node_when_no_defs(tmp_path):
         with patch("mcap_schema_cli.cli.make_reader", return_value=FakeReader()):
             sys.argv = ["prog", "--mcap-file", str(mcap_path)]
             cli.main()
-
-    assert called["cmd"][0] == "mcap-schema-cli"
+    assert called["cmd"][0] == "node"
+    assert Path(called["cmd"][1]).name == "index.js"
