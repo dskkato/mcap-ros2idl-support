@@ -19,5 +19,5 @@ pip install -r requirements.txt
 
 ```bash
 mcap-schema-cli sample.mcap -o schemas.json
-python3 ros2_mcap_reader.py --type-definitions schemas.json --mcap-file sample.mcap
+python3 -m mcap_schema_cli --type-definitions schemas.json --mcap-file sample.mcap
 ```
