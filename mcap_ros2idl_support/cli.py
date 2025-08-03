@@ -25,7 +25,8 @@ def main() -> None:
         required=False,
         help=(
             "Path to the JSON file containing type definitions. "
-            "If omitted, they will be generated using the Node `mcap-ros2idl-support-cli` tool."
+            "If omitted, they will be generated using the Node "
+            "`mcap-ros2idl-support-cli` tool."
         ),
     )
     parser.add_argument(
