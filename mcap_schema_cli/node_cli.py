@@ -1,11 +1,20 @@
+"""Helpers to invoke the bundled Node.js CLI."""
+
+from pathlib import Path
 import subprocess
 import sys
-from pathlib import Path
+from typing import Sequence
 
 
-def main() -> None:
+def run_node_cli(args: Sequence[str]) -> None:
+    """Execute the bundled Node script with ``args``.
+
+    ``args`` should contain the command line arguments passed to the Node CLI
+    *excluding* the node executable and script path.
+    """
+
     js_path = Path(__file__).with_name("dist") / "index.js"
-    cmd = ["node", str(js_path), *sys.argv[1:]]
+    cmd = ["node", str(js_path), *args]
     try:
         subprocess.run(cmd, check=True)
     except subprocess.CalledProcessError as e:
@@ -17,8 +26,8 @@ def main() -> None:
             print("Output:", e.output, file=sys.stderr)
         if e.stderr:
             print("Error output:", e.stderr, file=sys.stderr)
-        sys.exit(e.returncode if e.returncode is not None else 1)
+        raise
 
 
-if __name__ == "__main__":
-    main()
+__all__ = ["run_node_cli"]
+
