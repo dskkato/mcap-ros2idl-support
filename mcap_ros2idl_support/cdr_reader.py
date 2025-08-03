@@ -88,7 +88,9 @@ class CdrReader:
         }.get(type_name)
 
         if fmt:
-            value = struct.unpack(self.endianness + fmt, self.stream.read(struct.calcsize(fmt)))[0]
+            value = struct.unpack(
+                self.endianness + fmt, self.stream.read(struct.calcsize(fmt))
+            )[0]
         elif type_name == "string":
             length = self._read_primitive("uint32")
             bytes_ = self.stream.read(length)
