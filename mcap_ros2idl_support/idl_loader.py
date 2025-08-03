@@ -19,7 +19,7 @@ def load_idl(path: str) -> Dict[int, SchemaInfo]:
     Returns a dictionary indexed by schema ID containing a ``SchemaInfo``
     instance with message type and enum maps.
     """
-    with open(path, "r") as f:
+    with open(path, "r", encoding="utf-8") as f:
         type_definitions = json.load(f)
 
     id_to_schema: Dict[int, SchemaInfo] = {}
