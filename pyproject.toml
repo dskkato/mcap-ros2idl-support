@@ -22,6 +22,9 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
+[project.scripts]
+mcap-schema-cli = "mcap_schema_cli.cli:main"
+
 [tool.setuptools]
 packages = ["mcap_schema_cli"]
 
