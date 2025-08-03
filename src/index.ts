@@ -8,11 +8,10 @@ import { parseRos2idl } from "@foxglove/ros2idl-parser";
 import * as fs from "fs";
 import { parse as parseRos2msg } from "@foxglove/rosmsg";
 import { stdout } from "process";
-import { Console } from 'console';
+import { Console } from "console";
 import { Schema } from "@mcap/core/dist/esm/src/types.js";
 
 const logger = new Console(process.stderr);
-
 
 const program = new Command();
 
@@ -33,7 +32,9 @@ async function dumpSchemasAsText(inputPath: string) {
     const idlText = decoder.decode(schema.data);
     // if the schema contains "union", skip it
     if (idlText.includes("union")) {
-      logger.warn(`Skipping schema with union: ${schema.id}, name: ${schema.name}, encoding: ${schema.encoding}`);
+      logger.warn(
+        `Skipping schema with union: ${schema.id}, name: ${schema.name}, encoding: ${schema.encoding}`,
+      );
       continue;
     }
     // Store the schema text with its encoding
@@ -82,11 +83,13 @@ program
         if (schema.encoding === "ros2idl") {
           outputData[schema.id] = await parseRos2idl(idlText);
         } else if (schema.encoding === "ros2msg") {
-          var definitions = await parseRos2msg(idlText);
+          const definitions = await parseRos2msg(idlText);
           definitions[0]["name"] = schema.name; // Set the name to the schema ID
           outputData[schema.id] = definitions;
         } else {
-          logger.warn(`Unsupported schema encoding: ${schema.encoding} for schema ID: ${schema.id}`);
+          logger.warn(
+            `Unsupported schema encoding: ${schema.encoding} for schema ID: ${schema.id}`,
+          );
           continue;
         }
       }
@@ -97,6 +100,5 @@ program
       logger.error("Error processing MCAP file:", error);
       process.exit(1);
     }
-
   });
 program.parse();
