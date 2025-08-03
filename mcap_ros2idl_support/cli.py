@@ -14,21 +14,11 @@ from .node_cli import run_node_cli
 
 
 def main() -> None:
-    """Entry point for the ``mcap-ros2idl-support-cli`` command."""
-    prog = "mcap-ros2idl-support-cli"
+    """Entry point for the ``mcap-ros2idl-support`` command."""
+    prog = "mcap-ros2idl-support"
     if sys.argv[0].endswith("__main__.py"):
         prog = f"{os.path.basename(sys.executable)} -m mcap_ros2idl_support"
     parser = ArgumentParser(prog=prog, description="Read CDR messages from MCAP files.")
-    parser.add_argument(
-        "--type-definitions",
-        type=str,
-        required=False,
-        help=(
-            "Path to the JSON file containing type definitions. "
-            "If omitted, they will be generated using the Node "
-            "`mcap-ros2idl-support-cli` tool."
-        ),
-    )
     parser.add_argument(
         "--mcap-file",
         type=str,

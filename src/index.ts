@@ -44,4 +44,8 @@ program
       process.exit(1);
     }
   });
-program.parse();
+
+program.parseAsync().catch((error) => {
+  console.error("CLI parsing failed:", error);
+  process.exit(1);
+});
