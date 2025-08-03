@@ -1,9 +1,9 @@
 {
-  "name": "mcap-schema-cli",
+  "name": "mcap-schema-extractor",
   "version": "0.0.1",
   "main": "dist/index.js",
   "bin": {
-    "mcap-schema-cli": "dist/index.js"
+    "mcap-schema-extractor": "dist/index.js"
   },
   "type": "module",
   "scripts": {

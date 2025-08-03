@@ -5,11 +5,9 @@ It extracts schemas from rosbag2 messages and decodes their CDR payloads.
 
 ## Features
 
-- Read-only parsing of MCAP/rosbag2 files
+- Read-only parsing of MCAP/rosbag2 files without needing a ROS 2 runtime
 - Supports ROS 2 IDL (including potential enum support) through [@foxglove/ros2idl-parser](https://www.npmjs.com/package/@foxglove/ros2idl-parser)
 - Treats each struct as a Python `dict` instead of generating dynamic classes
-- Ignores default values; CDR payloads are assumed to contain all field values
-- Allows analysis of bags in Python without installing ROS 2
 
 ## Installation
 
@@ -35,9 +33,10 @@ extract type definitions before decoding messages. If you already have type
 definitions saved, you can provide them explicitly:
 
 ```bash
-mcap-schema-cli-js sample.mcap -o schemas.json
-python3 -m mcap_schema_cli --type-definitions schemas.json --mcap-file sample.mcap
+mcap-schema-cli --mcap-file sample.mcap
 ```
+
+Currently, the above command will print the whole messages. You can use the internal API to extract specific fields or perform more complex analysis, including visualization. See the `mcap_schema_cli/cli.py` file for the basic API usage.
 
 ## Building the wheel
 
