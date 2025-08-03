@@ -28,12 +28,12 @@ pip install .
 python3 -m mcap_ros2idl_support --mcap-file sample.mcap
 ```
 
-This command automatically invokes the bundled Node `mcap-ros2idl-support-cli` tool to
+This command automatically invokes the bundled Node `mcap-ros2idl-support` tool to
 extract type definitions before decoding messages. If you already have type
 definitions saved, you can provide them explicitly:
 
 ```bash
-mcap-ros2idl-support-cli --mcap-file sample.mcap
+mcap-ros2idl-support --mcap-file sample.mcap
 ```
 
 Currently, the above command will print the whole messages. You can use the internal API to extract specific fields or perform more complex analysis, including visualization. See the `mcap_ros2idl_support/cli.py` file for the basic API usage.
