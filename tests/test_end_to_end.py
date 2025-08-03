@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from mcap.reader import make_reader
+
 from mcap_schema_cli.cdr_reader import CdrReader
 from mcap_schema_cli.idl_loader import load_idl
 

@@ -1,10 +1,12 @@
 import argparse
+
 from mcap.writer import Writer
 
+
 def encode_cdr_string(value: str) -> bytes:
-    data = value.encode('utf-8') + b"\x00"
+    data = value.encode("utf-8") + b"\x00"
     length = len(data)
-    return length.to_bytes(4, 'little') + data
+    return length.to_bytes(4, "little") + data
 
 
 def main():
@@ -24,10 +26,15 @@ def main():
     with open(args.output, "wb") as f:
         writer = Writer(f)
         writer.start(profile="", library="test")
-        schema_id = writer.register_schema(name="String", encoding=args.encoding, data=schema_data)
-        channel_id = writer.register_channel(topic="String", message_encoding="cdr", schema_id=schema_id)
+        schema_id = writer.register_schema(
+            name="String", encoding=args.encoding, data=schema_data
+        )
+        channel_id = writer.register_channel(
+            topic="String", message_encoding="cdr", schema_id=schema_id
+        )
         writer.add_message(channel_id=channel_id, log_time=0, publish_time=0, data=cdr)
         writer.finish()
+
 
 if __name__ == "__main__":
     main()
