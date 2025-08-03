@@ -1,8 +1,8 @@
 """Helpers to invoke the bundled Node.js CLI."""
 
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 from typing import Sequence
 
 
