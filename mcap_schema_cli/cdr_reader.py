@@ -41,10 +41,6 @@ class CdrReader:
     def _read_message(self, msg_type: "MessageType"):
         result = {}
         for field in msg_type.fields:
-            print(f"Reading field: {field.name} of type {field.type}")
-            if field.name == "status":
-                print(f"Reading status field: {field.name} of type {field.type}")
-                print(f"Enum type: {field.enum_type}")
             if field.is_array:
                 result[field.name] = self._read_array(field)
             elif field.is_complex:
@@ -65,14 +61,13 @@ class CdrReader:
         return items
 
     def _read_primitive(self, type_name, enum_type=None):
-        if enum_type:
-            print(f"Reading enum type: {enum_type}")
         if type_name in ("uint32", "int32", "float32"):
             self._align(4)
         elif type_name in ("uint64", "int64", "float64"):
             self._align(8)
         elif type_name in ("uint16", "int16"):
             self._align(2)
+
         fmt = {
             "uint8": "B",
             "int8": "b",
@@ -80,26 +75,26 @@ class CdrReader:
             "int16": "h",
             "int32": "i",
             "uint32": "I",
-            # "int16": "h",  # Removed duplicate
             "int64": "q",
             "uint64": "Q",
             "float32": "f",
             "float64": "d",
             "bool": "?",
         }.get(type_name)
-        if enum_type:
-            print(f"Reading enum type: {enum_type}")
-            if enum_type not in self.enums:
-                raise ValueError(f"Unknown enum type: {enum_type}")
-            enum_lookup = self.enums[enum_type]
-            value = self._read_primitive("int32")
-            return enum_lookup.get(value, f"Unknown enum value: {value}")
 
         if fmt:
-            return struct.unpack("<" + fmt, self.stream.read(struct.calcsize(fmt)))[0]
+            value = struct.unpack("<" + fmt, self.stream.read(struct.calcsize(fmt)))[0]
         elif type_name == "string":
             length = self._read_primitive("uint32")
             bytes_ = self.stream.read(length)
-            return bytes_[:-1].decode("utf-8")
+            value = bytes_[:-1].decode("utf-8")
         else:
             raise ValueError(f"Unknown primitive type: {type_name}")
+
+        if enum_type:
+            if enum_type not in self.enums:
+                raise ValueError(f"Unknown enum type: {enum_type}")
+            enum_lookup = self.enums[enum_type]
+            return enum_lookup.get(value, f"Unknown enum value: {value}")
+
+        return value
