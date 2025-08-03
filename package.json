@@ -1,15 +1,15 @@
 {
   "name": "mcap-schema-cli",
   "version": "0.0.1",
-  "main": "dist/index.js",
+  "main": "mcap_schema_cli/dist/index.js",
   "bin": {
-    "mcap-schema-cli": "dist/index.js"
+    "mcap-schema-cli": "mcap_schema_cli/dist/index.js"
   },
   "type": "module",
   "scripts": {
     "test": "node --test",
     "build": "tsc",
-    "dev": "tsc && node dist/index.js",
+    "dev": "tsc && node mcap_schema_cli/dist/index.js",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx}\""
