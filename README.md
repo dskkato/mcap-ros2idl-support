@@ -17,8 +17,7 @@ Requires Node.js ≥20 and Python ≥3.10.
 
 ```bash
 npm install
-npm run build
-npm link
+npm run deploy
 ```
 
 ```bash
@@ -31,12 +30,12 @@ pip install .
 python3 -m mcap_schema_cli --mcap-file sample.mcap
 ```
 
-This command automatically invokes the Node `mcap-schema-cli` tool to extract
-type definitions before decoding messages. If you already have type definitions
-saved, you can provide them explicitly:
+This command automatically invokes the bundled Node `mcap-schema-cli` tool to
+extract type definitions before decoding messages. If you already have type
+definitions saved, you can provide them explicitly:
 
 ```bash
-mcap-schema-cli sample.mcap -o schemas.json
+mcap-schema-cli-js sample.mcap -o schemas.json
 python3 -m mcap_schema_cli --type-definitions schemas.json --mcap-file sample.mcap
 ```
 
