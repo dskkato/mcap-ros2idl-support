@@ -1,6 +1,9 @@
 """Command-line interface for reading CDR messages from MCAP files."""
 
 import json
+import os
+import subprocess
+import tempfile
 from argparse import ArgumentParser
 
 from mcap.reader import make_reader
@@ -15,8 +18,11 @@ def main() -> None:
     parser.add_argument(
         "--type-definitions",
         type=str,
-        required=True,
-        help="Path to the JSON file containing type definitions.",
+        required=False,
+        help=(
+            "Path to the JSON file containing type definitions. "
+            "If omitted, they will be generated using the Node `mcap-schema-cli` tool."
+        ),
     )
     parser.add_argument(
         "--mcap-file",
@@ -26,11 +32,25 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    schemas = load_idl(args.type_definitions)
+    type_defs_path = args.type_definitions
+    cleanup = False
+    if type_defs_path is None:
+        cleanup = True
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as tmp:
+            type_defs_path = tmp.name
+        subprocess.run(
+            ["mcap-schema-cli", args.mcap_file, "-o", type_defs_path],
+            check=True,
+        )
+
+    schemas = load_idl(type_defs_path)
     id_to_cdr_reader = {
         schema_id: CdrReader(info.type_map, info.enum_map)
         for schema_id, info in schemas.items()
     }
+
+    if cleanup:
+        os.unlink(type_defs_path)
 
     with open(args.mcap_file, "rb") as f:
         reader = make_reader(f)

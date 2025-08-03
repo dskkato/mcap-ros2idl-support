@@ -28,6 +28,14 @@ pip install -r requirements.txt
 ## Usage
 
 ```bash
+python3 -m mcap_schema_cli --mcap-file sample.mcap
+```
+
+This command automatically invokes the Node `mcap-schema-cli` tool to extract
+type definitions before decoding messages. If you already have type definitions
+saved, you can provide them explicitly:
+
+```bash
 mcap-schema-cli sample.mcap -o schemas.json
 python3 -m mcap_schema_cli --type-definitions schemas.json --mcap-file sample.mcap
 ```
