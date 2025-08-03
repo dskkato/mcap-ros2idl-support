@@ -27,6 +27,3 @@ def run_node_cli(args: Sequence[str]) -> None:
         if e.stderr:
             print("Error output:", e.stderr, file=sys.stderr)
         raise
-
-
-__all__ = ["run_node_cli"]

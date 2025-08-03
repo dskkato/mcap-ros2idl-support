@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61"]
+requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -9,7 +9,7 @@ description = "A command-line and Python tool to read and parse ROS 2 MCAP bag f
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "ISC"}
-authors = [{name = "Foxglove"}]
+authors = [{name = "dskkato"}]
 dependencies = [
     "mcap>=1.3.0",
 ]
@@ -24,7 +24,6 @@ classifiers = [
 
 [project.scripts]
 mcap-schema-cli = "mcap_schema_cli.cli:main"
-mcap-schema-cli-js = "mcap_schema_cli.node_cli:main"
 
 [tool.setuptools]
 packages = ["mcap_schema_cli"]
