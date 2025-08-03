@@ -3,6 +3,7 @@
 import json
 import os
 import subprocess
+import sys
 import tempfile
 from argparse import ArgumentParser
 
@@ -14,7 +15,10 @@ from .idl_loader import load_idl
 
 def main() -> None:
     """Entry point for the ``mcap-schema-cli`` command."""
-    parser = ArgumentParser(description="Read CDR messages from MCAP files.")
+    prog = "mcap-schema-cli"
+    if sys.argv[0].endswith("__main__.py"):
+        prog = f"{os.path.basename(sys.executable)} -m mcap_schema_cli"
+    parser = ArgumentParser(prog=prog, description="Read CDR messages from MCAP files.")
     parser.add_argument(
         "--type-definitions",
         type=str,
