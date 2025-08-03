@@ -1,4 +1,4 @@
-# mcap-schema-cli
+# mcap-ros2idl-support
 
 A command-line and Python tool to read and parse ROS 2 MCAP bag files without a ROS 2 runtime.
 It extracts schemas from rosbag2 messages and decodes their CDR payloads.
@@ -25,18 +25,18 @@ pip install .
 ## Usage
 
 ```bash
-python3 -m mcap_schema_cli --mcap-file sample.mcap
+python3 -m mcap_ros2idl_support --mcap-file sample.mcap
 ```
 
-This command automatically invokes the bundled Node `mcap-schema-cli` tool to
+This command automatically invokes the bundled Node `mcap-ros2idl-support-cli` tool to
 extract type definitions before decoding messages. If you already have type
 definitions saved, you can provide them explicitly:
 
 ```bash
-mcap-schema-cli --mcap-file sample.mcap
+mcap-ros2idl-support-cli --mcap-file sample.mcap
 ```
 
-Currently, the above command will print the whole messages. You can use the internal API to extract specific fields or perform more complex analysis, including visualization. See the `mcap_schema_cli/cli.py` file for the basic API usage.
+Currently, the above command will print the whole messages. You can use the internal API to extract specific fields or perform more complex analysis, including visualization. See the `mcap_ros2idl_support/cli.py` file for the basic API usage.
 
 ## Building the wheel
 
@@ -71,7 +71,7 @@ build output doesn't conflict with Python's `dist/` directory.
 5. (Optional) Verify the wheel locally:
 
    ```bash
-   python -m pip install dist/mcap_schema_cli-<version>-py3-none-any.whl
+   python -m pip install dist/mcap_ros2idl_support-<version>-py3-none-any.whl
    ```
 
 6. (Optional) Upload to PyPI:

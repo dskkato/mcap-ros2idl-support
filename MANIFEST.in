@@ -1,1 +1,1 @@
-include mcap_schema_cli/dist/index.js
+include mcap_ros2idl_support/dist/index.js

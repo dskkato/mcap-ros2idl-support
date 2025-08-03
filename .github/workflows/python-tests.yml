@@ -17,9 +17,9 @@ jobs:
           pip install -e . -r requirements-dev.txt
       - name: Check formatting
         run: |
-          black --check mcap_schema_cli tests
-          isort --check-only mcap_schema_cli tests
+          black --check mcap_ros2idl_support tests
+          isort --check-only mcap_ros2idl_support tests
       - name: Lint
-        run: flake8 mcap_schema_cli tests
+        run: flake8 mcap_ros2idl_support tests
       - name: Run tests
         run: pytest
