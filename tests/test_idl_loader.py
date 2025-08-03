@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from mcap_schema_cli.idl_loader import load_idl  # noqa: E402
+from mcap_ros2idl_support.idl_loader import load_idl  # noqa: E402
 
 
 def test_load_idl(tmp_path):

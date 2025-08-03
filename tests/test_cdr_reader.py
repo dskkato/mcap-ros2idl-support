@@ -3,7 +3,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from mcap_schema_cli.cdr_reader import CdrReader, MessageType  # noqa: E402
+from mcap_ros2idl_support.cdr_reader import CdrReader, MessageType  # noqa: E402
 
 
 def test_enum_with_uint8():
