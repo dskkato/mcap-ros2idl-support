@@ -24,9 +24,17 @@ classifiers = [
 
 [project.scripts]
 mcap-schema-cli = "mcap_schema_cli.cli:main"
+mcap-schema-cli-js = "mcap_schema_cli.node_cli:main"
 
 [tool.setuptools]
 packages = ["mcap_schema_cli"]
+
+[tool.setuptools.package-data]
+mcap_schema_cli = [
+    "dist/index.js",
+    "dist/parseSchemas.js",
+    "dist/readSchemas.js",
+]
 
 [tool.black]
 line-length = 88
