@@ -30,4 +30,3 @@ def run_node_cli(args: Sequence[str]) -> None:
 
 
 __all__ = ["run_node_cli"]
-
