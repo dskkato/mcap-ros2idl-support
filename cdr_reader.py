@@ -80,7 +80,7 @@ class CdrReader:
             "int16": "h",
             "int32": "i",
             "uint32": "I",
-            "int16": "h",
+            # "int16": "h",  # Removed duplicate
             "uint16": "H",
             "int64": "q",
             "uint64": "Q",
