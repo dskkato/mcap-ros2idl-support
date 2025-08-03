@@ -1,4 +1,4 @@
-from .cdr_reader import Field, MessageType, CdrReader
+from .cdr_reader import CdrReader, Field, MessageType
 from .idl_loader import SchemaInfo, load_idl
 
 __all__ = [

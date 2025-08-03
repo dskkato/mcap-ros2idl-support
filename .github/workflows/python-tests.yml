@@ -14,7 +14,12 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest
+          pip install -r requirements-dev.txt
+      - name: Check formatting
+        run: |
+          black --check mcap_schema_cli tests
+          isort --check-only mcap_schema_cli tests
+      - name: Lint
+        run: flake8 mcap_schema_cli tests
       - name: Run tests
         run: pytest
