@@ -1,7 +1,11 @@
+import struct
 import sys
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+# Insert the parent directory at the start of sys.path to ensure tests
+# use the local (uninstalled) version of the package. This is intentional
+# to avoid conflicts with installed packages and to test the current source.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from mcap_ros2idl_support.cdr_reader import CdrReader, MessageType  # noqa: E402
 
@@ -43,3 +47,39 @@ def test_enum_with_uint8():
     reader = CdrReader(type_map, enum_map)
     data = b"\x00\x00\x00\x00" + b"\x02"
     assert reader.read("Msg", data) == {"status": "OK"}
+
+
+def test_little_endian_uint32():
+    type_map = {
+        "Msg": MessageType(
+            "Msg",
+            [
+                {
+                    "name": "value",
+                    "type": "uint32",
+                    "isComplex": False,
+                }
+            ],
+        )
+    }
+    reader = CdrReader(type_map)
+    data = b"\x00\x01\x00\x00" + struct.pack("<I", 0x01020304)
+    assert reader.read("Msg", data) == {"value": 0x01020304}
+
+
+def test_big_endian_uint32():
+    type_map = {
+        "Msg": MessageType(
+            "Msg",
+            [
+                {
+                    "name": "value",
+                    "type": "uint32",
+                    "isComplex": False,
+                }
+            ],
+        )
+    }
+    reader = CdrReader(type_map)
+    data = b"\x00\x00\x00\x00" + struct.pack(">I", 0x01020304)
+    assert reader.read("Msg", data) == {"value": 0x01020304}

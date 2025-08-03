@@ -27,10 +27,16 @@ class CdrReader:
         self.types = type_map
         self.enums = enum_map
         self.stream = None
+        self.endianness = "<"
 
     def read(self, typename, data: bytes):
         self.stream = io.BytesIO(data)
-        self._read_primitive("uint32")  # Skip the CDR header
+        header = self.stream.read(4)
+        if len(header) < 4:
+            raise ValueError("Incomplete CDR header")
+        # According to the CDR specification, bit 0 of byte 1 indicates
+        # little endian when set.
+        self.endianness = "<" if header[1] & 0x01 else ">"
         return self._read_message(self.types[typename])
 
     def _align(self, size: int, base: int = 4):
@@ -83,7 +89,9 @@ class CdrReader:
         }.get(type_name)
 
         if fmt:
-            value = struct.unpack("<" + fmt, self.stream.read(struct.calcsize(fmt)))[0]
+            value = struct.unpack(
+                self.endianness + fmt, self.stream.read(struct.calcsize(fmt))
+            )[0]
         elif type_name == "string":
             length = self._read_primitive("uint32")
             bytes_ = self.stream.read(length)
