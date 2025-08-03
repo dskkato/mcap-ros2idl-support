@@ -46,6 +46,6 @@ program
   });
 
 program.parseAsync().catch((error) => {
-  console.error(error);
+  console.error("CLI parsing failed:", error);
   process.exit(1);
 });
