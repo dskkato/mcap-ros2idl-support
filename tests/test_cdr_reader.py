@@ -2,6 +2,8 @@ import sys
 import struct
 from pathlib import Path
 
+# Insert the parent directory at the start of sys.path to ensure tests use the local (uninstalled) version of the package.
+# This is intentional to avoid conflicts with installed packages and to test the current source.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from mcap_ros2idl_support.cdr_reader import CdrReader, MessageType  # noqa: E402
