@@ -1,13 +1,16 @@
+"""Command-line interface for reading CDR messages from MCAP files."""
+
 import json
 from argparse import ArgumentParser
 
 from mcap.reader import make_reader
 
-from cdr_reader import CdrReader
-from idl_loader import load_idl
+from .cdr_reader import CdrReader
+from .idl_loader import load_idl
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Entry point for the ``mcap-schema-cli`` command."""
     parser = ArgumentParser(description="Read CDR messages from MCAP files.")
     parser.add_argument(
         "--type-definitions",
@@ -38,3 +41,7 @@ if __name__ == "__main__":
                 continue
             msg = id_to_cdr_reader[schema.schema_id].read(topic.name, message.data)
             print(json.dumps(msg, indent=2))
+
+
+if __name__ == "__main__":
+    main()

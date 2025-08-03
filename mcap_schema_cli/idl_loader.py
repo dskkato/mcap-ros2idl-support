@@ -2,7 +2,7 @@ import json
 from dataclasses import dataclass
 from typing import Dict
 
-from cdr_reader import MessageType
+from .cdr_reader import MessageType
 
 
 @dataclass
