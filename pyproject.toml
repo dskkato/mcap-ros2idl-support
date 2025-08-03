@@ -32,8 +32,6 @@ packages = ["mcap_schema_cli"]
 [tool.setuptools.package-data]
 mcap_schema_cli = [
     "dist/index.js",
-    "dist/parseSchemas.js",
-    "dist/readSchemas.js",
 ]
 
 [tool.black]
