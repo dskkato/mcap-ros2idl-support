@@ -43,4 +43,3 @@ def test_enum_with_uint8():
     reader = CdrReader(type_map, enum_map)
     data = b"\x00\x00\x00\x00" + b"\x02"
     assert reader.read("Msg", data) == {"status": "OK"}
-
