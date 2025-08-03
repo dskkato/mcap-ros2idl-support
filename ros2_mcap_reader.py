@@ -23,10 +23,10 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    id_to_type_map, id_to_enum_map = load_idl(args.type_definitions)
+    schemas = load_idl(args.type_definitions)
     id_to_cdr_reader = {
-        schema_id: CdrReader(type_map, id_to_enum_map.get(schema_id))
-        for schema_id, type_map in id_to_type_map.items()
+        schema_id: CdrReader(info.type_map, info.enum_map)
+        for schema_id, info in schemas.items()
     }
 
     with open(args.mcap_file, "rb") as f:
