@@ -2,7 +2,7 @@ import json
 import sys
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from mcap_schema_cli.idl_loader import load_idl  # noqa: E402
 
@@ -34,3 +34,5 @@ def test_load_idl(tmp_path):
     assert "Foo" in info.enum_map
     assert info.enum_map["Foo"][0] == "BAZ"
     assert info.type_map["Foo"].name == "Foo"
+    assert "Foo" in info.reader_map
+    assert len(info.type_map["Foo"].fields) == 1

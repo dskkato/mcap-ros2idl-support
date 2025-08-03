@@ -1,6 +1,8 @@
 import io
 import struct
 
+from python_omgidl.omgidl_serialization.message_reader import MessageReader
+
 
 class Field:
     def __init__(self, name, type, isComplex, **kwargs):
@@ -23,15 +25,20 @@ class MessageType:
 
 
 class CdrReader:
-    def __init__(self, type_map, enum_map=None):
+    def __init__(self, type_map, enum_map=None, reader_map=None):
         self.types = type_map
         self.enums = enum_map
+        self.readers: dict[str, MessageReader] = reader_map or {}
         self.stream = None
 
     def read(self, typename, data: bytes):
         self.stream = io.BytesIO(data)
         self._read_primitive("uint32")  # Skip the CDR header
-        return self._read_message(self.types[typename])
+        result = self._read_message(self.types[typename])
+        reader = self.readers.get(typename)
+        if reader:
+            result = reader.read(result)
+        return result
 
     def _align(self, size: int, base: int = 4):
         relative_offset = self.stream.tell() - base

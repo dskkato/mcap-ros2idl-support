@@ -49,7 +49,7 @@ def main() -> None:
 
     schemas = load_idl(type_defs_path)
     id_to_cdr_reader = {
-        schema_id: CdrReader(info.type_map, info.enum_map)
+        schema_id: CdrReader(info.type_map, info.enum_map, info.reader_map)
         for schema_id, info in schemas.items()
     }
 
