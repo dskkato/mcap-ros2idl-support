@@ -14,7 +14,9 @@ export async function buildOutputData(
       output[schema.id] = await parseRos2idl(idlText);
     } else if (schema.encoding === "ros2msg") {
       const definitions = await parseRos2msg(idlText);
-      definitions[0].name = schema.name;
+      if (definitions.length > 0) {
+        definitions[0].name = schema.name;
+      }
       output[schema.id] = definitions;
     } else {
       console.warn(`Unsupported schema encoding: ${schema.encoding} for schema ID: ${schema.id}`);
