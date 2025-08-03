@@ -34,7 +34,8 @@ class CdrReader:
         header = self.stream.read(4)
         if len(header) < 4:
             raise ValueError("Incomplete CDR header")
-        # According to the CDR specification, bit 0 of byte 1 indicates little endian when set.
+        # According to the CDR specification, bit 0 of byte 1 indicates
+        # little endian when set.
         self.endianness = "<" if header[1] & 0x01 else ">"
         return self._read_message(self.types[typename])
 
