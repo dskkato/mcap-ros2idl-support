@@ -1,15 +1,16 @@
 {
   "name": "mcap-schema-cli",
   "version": "0.0.1",
-  "main": "mcap_schema_cli/dist/index.js",
+  "main": "dist/index.js",
   "bin": {
-    "mcap-schema-cli": "mcap_schema_cli/dist/index.js"
+    "mcap-schema-cli": "dist/index.js"
   },
   "type": "module",
   "scripts": {
-    "test": "tsc && npm run build && node --test mcap_schema_cli/dist/__tests__",
-    "build": "esbuild src/index.ts --bundle --platform=node --target=es2020 --outfile=mcap_schema_cli/dist/index.js --banner:js='#!/usr/bin/env node\nimport { createRequire as __createRequire } from \"module\";\nconst require = __createRequire(import.meta.url);'",
-    "dev": "npm run build && node mcap_schema_cli/dist/index.js",
+    "test": "tsc && npm run build && node --test dist/__tests__",
+    "build": "tsc",
+    "deploy": "esbuild src/index.ts --bundle --platform=node --target=es2020 --outfile=mcap_schema_cli/dist/index.js --banner:js='#!/usr/bin/env node\nimport { createRequire as __createRequire } from \"module\";\nconst require = __createRequire(import.meta.url);'",
+    "dev": "tsc && node dist/index.js",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx}\""
