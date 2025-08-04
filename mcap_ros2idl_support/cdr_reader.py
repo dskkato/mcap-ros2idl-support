@@ -71,8 +71,8 @@ class CdrReader:
         }
         return self._read_message(self.types[typename])
 
-    def _align(self, size: int, base: int = 4):
-        relative_offset = self.stream.tell() - base
+    def _align(self, size: int):
+        relative_offset = self.stream.tell() - 4
         padding = (size - (relative_offset % size)) % size
         self.stream.seek(padding, io.SEEK_CUR)
 
