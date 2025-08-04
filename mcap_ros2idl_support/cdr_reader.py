@@ -100,17 +100,23 @@ class CdrReader:
             return [read_message(msg_type) for _ in range(length)]
 
         # Primitive array fast path
-        struct_obj = self._structs[field.type]
+        struct_obj = self._structs.get(field.type)
+        if struct_obj is None:
+            raise ValueError(f"Unsupported primitive type: {field.type}")
+
         align_size = self._ALIGNMENT.get(field.type, 1)
         if align_size > 1:
             self._align(align_size)
         data = self.stream.read(struct_obj.size * length)
-        fmt_char = struct_obj.format[-1]
-        values = struct.unpack(self.endianness + fmt_char * length, data)
+
         if field.enum_type:
             enum_lookup = self.enums[field.enum_type]
-            return [enum_lookup.get(v, f"Unknown enum value: {v}") for v in values]
-        return list(values)
+            return [
+                enum_lookup.get(v, f"Unknown enum value: {v}")
+                for (v,) in struct_obj.iter_unpack(data)
+            ]
+
+        return [v for (v,) in struct_obj.iter_unpack(data)]
 
     def _read_primitive(self, type_name, enum_type=None):
         align_size = self._ALIGNMENT.get(type_name, 1)
