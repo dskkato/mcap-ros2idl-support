@@ -22,6 +22,14 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "black",
+    "flake8",
+    "isort",
+    "pytest",
+]
+
 [project.scripts]
 mcap-ros2idl-support = "mcap_ros2idl_support.cli:main"
 

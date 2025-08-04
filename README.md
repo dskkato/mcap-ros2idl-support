@@ -22,6 +22,15 @@ npm run deploy
 pip install .
 ```
 
+## Development
+
+Install development dependencies and run the test suite:
+
+```bash
+pip install -e '.[dev]'
+pytest
+```
+
 ## Usage
 
 ```bash
