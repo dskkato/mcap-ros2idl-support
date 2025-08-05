@@ -24,12 +24,7 @@ pip install .
 
 ## Development
 
-Install development dependencies and run the test suite:
-
-```bash
-pip install -e '.[dev]'
-pytest
-```
+See [README_PYTHON.md](README_PYTHON.md) for details on setting up a Python development environment, running pre-commit, and executing tests.
 
 ## Usage
 
