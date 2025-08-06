@@ -1,6 +1,8 @@
 use mcap::{McapResult, MessageStream};
 use serde::Deserialize;
 use std::{collections::HashMap, fs::File};
+use pyo3::prelude::*;
+use pyo3::types::{PyList, PyDict};
 
 pub mod cdr;
 pub use cdr::CdrReader;
@@ -39,7 +41,7 @@ pub struct MessageType {
     pub fields: Vec<Field>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SchemaInfo {
     pub type_map: HashMap<String, MessageType>,
     pub enum_map: HashMap<String, HashMap<i64, String>>, // enum type -> value -> name
@@ -94,6 +96,162 @@ pub fn count_messages(buf: &[u8]) -> McapResult<usize> {
         count += 1;
     }
     Ok(count)
+}
+
+// ---------------------------------------------------------------------------
+// Python bindings
+// ---------------------------------------------------------------------------
+
+fn json_to_py(py: Python<'_>, value: &serde_json::Value) -> PyResult<PyObject> {
+    match value {
+        serde_json::Value::Null => Ok(py.None()),
+        serde_json::Value::Bool(b) => Ok(b.to_object(py)),
+        serde_json::Value::Number(n) => {
+            if let Some(i) = n.as_i64() {
+                Ok(i.to_object(py))
+            } else if let Some(u) = n.as_u64() {
+                Ok(u.to_object(py))
+            } else if let Some(f) = n.as_f64() {
+                Ok(f.to_object(py))
+            } else {
+                Ok(py.None())
+            }
+        }
+        serde_json::Value::String(s) => Ok(s.to_object(py)),
+        serde_json::Value::Array(arr) => {
+            let elements: Vec<_> = arr
+                .iter()
+                .map(|v| json_to_py(py, v))
+                .collect::<PyResult<Vec<_>>>()?;
+            Ok(PyList::new(py, elements).into())
+        }
+        serde_json::Value::Object(map) => {
+            let dict = PyDict::new(py);
+            for (k, v) in map {
+                dict.set_item(k, json_to_py(py, v)?)?;
+            }
+            Ok(dict.into())
+        }
+    }
+}
+
+#[pyclass]
+pub struct SchemaRegistry {
+    schemas: HashMap<u32, SchemaInfo>,
+}
+
+#[pymethods]
+impl SchemaRegistry {
+    #[new]
+    pub fn new(files: Vec<String>) -> PyResult<Self> {
+        let mut schemas = HashMap::new();
+        for path in files {
+            let loaded = load_idl(&path)
+                .map_err(|e| pyo3::exceptions::PyIOError::new_err(e.to_string()))?;
+            schemas.extend(loaded);
+        }
+        Ok(Self { schemas })
+    }
+}
+
+#[pyclass]
+pub struct Message {
+    #[pyo3(get)]
+    channel: String,
+    #[pyo3(get)]
+    timestamp: u64,
+    #[pyo3(get)]
+    data: PyObject,
+}
+
+#[pyclass]
+pub struct MCAPReader {
+    data: Vec<u8>,
+    schemas: HashMap<u32, SchemaInfo>,
+}
+
+#[pymethods]
+impl MCAPReader {
+    #[new]
+    pub fn new(path: &str, registry: &SchemaRegistry) -> PyResult<Self> {
+        let data = std::fs::read(path)
+            .map_err(|e| pyo3::exceptions::PyIOError::new_err(e.to_string()))?;
+        Ok(Self { data, schemas: registry.schemas.clone() })
+    }
+
+    pub fn count(&self, topic: Option<&str>) -> PyResult<u64> {
+        let mut count = 0u64;
+        let mut stream = MessageStream::new(self.data.as_slice())
+            .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
+        while let Some(res) = stream.next() {
+            let msg = res.map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
+            if let Some(t) = topic {
+                if msg.channel.topic != t {
+                    continue;
+                }
+            }
+            count += 1;
+        }
+        Ok(count)
+    }
+
+    pub fn iter(&self, py: Python<'_>, topic: Option<&str>) -> PyResult<Vec<Message>> {
+        let mut out = Vec::new();
+        let mut stream = MessageStream::new(self.data.as_slice())
+            .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
+        while let Some(res) = stream.next() {
+            let msg = res.map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
+            if let Some(t) = topic {
+                if msg.channel.topic != t {
+                    continue;
+                }
+            }
+            let schema = match &msg.channel.schema {
+                Some(s) => s,
+                None => continue,
+            };
+            let info = match self.schemas.get(&(schema.id as u32)) {
+                Some(i) => i,
+                None => continue,
+            };
+            let reader = CdrReader::new(info);
+            let type_name = schema.name.replace("::", "/");
+            let decoded = reader
+                .read(&type_name, msg.data.as_ref())
+                .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
+            let py_data = json_to_py(py, &decoded)?;
+            out.push(Message { channel: msg.channel.topic.clone(), timestamp: msg.log_time, data: py_data });
+        }
+        Ok(out)
+    }
+}
+
+#[pyfunction]
+pub fn decode_cdr(
+    registry: &SchemaRegistry,
+    schema_id: u32,
+    type_name: &str,
+    data: &[u8],
+) -> PyResult<PyObject> {
+    let info = registry
+        .schemas
+        .get(&schema_id)
+        .ok_or_else(|| pyo3::exceptions::PyKeyError::new_err("unknown schema id"))?;
+    let reader = CdrReader::new(info);
+    let value = reader
+        .read(type_name, data)
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
+    Python::with_gil(|py| json_to_py(py, &value))
+}
+
+#[pymodule]
+fn mcap_rs(py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_class::<SchemaRegistry>()?;
+    m.add_class::<MCAPReader>()?;
+    m.add_class::<Message>()?;
+    m.add_function(wrap_pyfunction!(decode_cdr, m)?)?;
+    m.add("__version__", env!("CARGO_PKG_VERSION"))?;
+    Ok(())
 }
 
 #[cfg(test)]
