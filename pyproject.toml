@@ -26,6 +26,7 @@ classifiers = [
 dev = [
     "pre-commit",
     "pytest",
+    "maturin>=1.5,<2",
 ]
 
 [project.scripts]

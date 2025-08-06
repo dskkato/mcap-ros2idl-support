@@ -94,4 +94,8 @@ build output doesn't conflict with Python's `dist/` directory.
 
 ## Rust prototype
 
-A lightweight Rust implementation demonstrating MCAP parsing is available in [`rust/mcap-rs`](rust/mcap-rs). The CLI accepts an MCAP file, invokes the bundled Node tool to extract type definitions, and prints each decoded message. The crate also exposes library functions for counting messages and decoding CDR payloads.
+A lightweight Rust implementation demonstrating MCAP parsing is available in [`rust/mcap-rs`](rust/mcap-rs). The CLI accepts an MCAP file, invokes the bundled Node tool to extract type definitions, and prints each decoded message. The crate also exposes library functions for counting messages and decoding CDR payloads. Python bindings for these utilities can be installed with:
+
+```bash
+maturin develop --manifest-path rust/mcap-rs/Cargo.toml
+```

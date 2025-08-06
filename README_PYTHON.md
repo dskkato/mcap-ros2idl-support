@@ -12,6 +12,11 @@
    pip install -e '.[dev]'
    ```
 
+3. Build the Rust Python bindings using `maturin`:
+   ```bash
+   maturin develop --manifest-path rust/mcap-rs/Cargo.toml
+   ```
+
 ## Using pre-commit
 
 Install the git hooks and run them locally before committing:

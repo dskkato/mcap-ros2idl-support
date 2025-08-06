@@ -1,6 +1,30 @@
+import importlib
+import pathlib
+import subprocess
+import sys
 import tempfile
 
-import mcap_rs
+try:  # pragma: no cover - installation step
+    import mcap_rs  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover - executed when extension missing
+    manifest = pathlib.Path(__file__).parents[1] / "rust" / "mcap-rs" / "Cargo.toml"
+    subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "maturin",
+            "build",
+            "--manifest-path",
+            str(manifest),
+            "--interpreter",
+            sys.executable,
+        ],
+        check=True,
+    )
+    wheel_dir = manifest.parent / "target" / "wheels"
+    wheel = next(wheel_dir.glob("mcap_rs-*.whl"))
+    subprocess.run([sys.executable, "-m", "pip", "install", str(wheel)], check=True)
+    mcap_rs = importlib.import_module("mcap_rs")
 
 
 def test_decode_cdr_from_rust():
