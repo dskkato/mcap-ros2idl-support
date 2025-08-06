@@ -91,3 +91,7 @@ build output doesn't conflict with Python's `dist/` directory.
 - Only reading is supported; writing MCAP files is out of scope.
 - Enumerations defined in IDL are parsed and returned as their string values when present.
 - The goal is to enable parsing MCAP bags without any ROS 2 dependencies to make offline analysis easier.
+
+## Rust prototype
+
+A lightweight Rust implementation demonstrating MCAP parsing is available in [`rust/mcap-rs`](rust/mcap-rs). The CLI accepts an MCAP file, invokes the bundled Node tool to extract type definitions, and prints each decoded message. The crate also exposes library functions for counting messages and decoding CDR payloads.
