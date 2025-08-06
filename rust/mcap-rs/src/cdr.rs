@@ -23,9 +23,6 @@ impl<'a> CdrReader<'a> {
         let mut cursor = Cursor::new(data);
         let mut header = [0u8; 4];
         cursor.read_exact(&mut header)?;
-        if header.len() < 4 {
-            return Err("Incomplete CDR header".into());
-        }
         let little = (header[1] & 0x01) != 0;
         let msg_type = self
             .schema
@@ -162,7 +159,11 @@ impl<'a> CdrReader<'a> {
                 } else {
                     cursor.read_u64::<BigEndian>()?
                 };
-                num_val = Some(v as i64);
+                if v <= i64::MAX as u64 {
+                    num_val = Some(v as i64);
+                } else if enum_type.is_some() {
+                    return Err(format!("uint64 value {v} exceeds i64::MAX").into());
+                }
                 Value::Number(Number::from(v))
             }
             "int64" => {
@@ -180,7 +181,9 @@ impl<'a> CdrReader<'a> {
                 } else {
                     cursor.read_f32::<BigEndian>()?
                 };
-                Value::Number(Number::from_f64(v as f64).unwrap())
+                let num = Number::from_f64(v as f64)
+                    .ok_or_else(|| format!("Invalid f32 value: {v}"))?;
+                Value::Number(num)
             }
             "float64" => {
                 let v = if little {
@@ -188,12 +191,20 @@ impl<'a> CdrReader<'a> {
                 } else {
                     cursor.read_f64::<BigEndian>()?
                 };
-                Value::Number(Number::from_f64(v).unwrap())
+                let num = Number::from_f64(v)
+                    .ok_or_else(|| format!("Invalid f64 value: {v}"))?;
+                Value::Number(num)
             }
             "string" => {
                 let len = self.read_u32(cursor, little)? as usize;
+                if len == 0 {
+                    return Err("String length is zero".into());
+                }
                 let mut bytes = vec![0u8; len];
                 cursor.read_exact(&mut bytes)?;
+                if bytes[len - 1] != 0 {
+                    return Err("String missing null terminator".into());
+                }
                 let s = String::from_utf8(bytes[..len - 1].to_vec())?;
                 Value::String(s)
             }
