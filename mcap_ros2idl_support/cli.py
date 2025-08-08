@@ -27,17 +27,15 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as tmp:
+    with tempfile.NamedTemporaryFile(suffix=".json") as tmp:
         type_defs_path = tmp.name
-    run_node_cli([args.mcap_file, "-o", type_defs_path])
+        run_node_cli([args.mcap_file, "-o", type_defs_path])
 
-    schemas = load_idl(type_defs_path)
-    id_to_cdr_reader = {
-        schema_id: CdrReader(info.type_map, info.enum_map)
-        for schema_id, info in schemas.items()
-    }
-
-    os.unlink(type_defs_path)
+        schemas = load_idl(type_defs_path)
+        id_to_cdr_reader = {
+            schema_id: CdrReader(info.type_map, info.enum_map)
+            for schema_id, info in schemas.items()
+        }
 
     with open(args.mcap_file, "rb") as f:
         reader = make_reader(f)
