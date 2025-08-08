@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Sequence
 
 
-def extract_schema(args: Sequence[str]) -> None:
+def run_node_cli(args: Sequence[str]) -> None:
     """Execute the bundled Node script with ``args``.
 
     ``args`` should contain the command line arguments passed to the Node CLI
