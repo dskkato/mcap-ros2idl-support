@@ -77,12 +77,8 @@ If the file contains `tf` messages, the output `types.json` may include:
           "isComplex": true
         }
       ]
-    },
-    ...
-  ],
-  "2": [
-    {
-  ...
+    }
+  ]
 }
 ```
 
