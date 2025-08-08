@@ -35,6 +35,7 @@ npm run deploy
 
 Run the CLI against an MCAP file and write schema definitions:
 
+> **Note:** The example below assumes you have an MCAP file named `sample.mcap` in your working directory. You can use your own MCAP file, or download a sample from [the MCAP sample data repository](https://github.com/foxglove/mcap/tree/main/testdata) or generate one using your data.
 ```bash
 npm run dev -- sample.mcap -o types.json
 ```
