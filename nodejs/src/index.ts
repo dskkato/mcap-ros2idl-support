@@ -12,7 +12,7 @@ function writeOutput(data: Record<string, MessageDefinition[]>, out: number | st
 const program = new Command();
 
 program
-  .name("mcap-schema-cli")
+  .name("mcap-schema-extractor")
   .description("Extract schema definitions from an MCAP file")
   .version("0.0.1")
   .argument("<mcapFile>", "Path to the MCAP file")
