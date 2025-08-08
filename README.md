@@ -24,7 +24,58 @@ pip install .
 
 ## Development
 
-See [README_PYTHON.md](README_PYTHON.md) for details on setting up a Python development environment, running pre-commit, and executing tests.
+### Python
+
+1. Create and activate a virtual environment:
+
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   ```
+
+2. Install project and development dependencies:
+
+   ```bash
+   pip install -e '.[dev]'
+   ```
+
+3. Build the Rust Python bindings using `maturin`:
+
+   ```bash
+   maturin develop --manifest-path rust/mcap-rs/Cargo.toml
+   ```
+
+4. Install and run `pre-commit`:
+
+   ```bash
+   pre-commit install
+   pre-commit run --files <file> [<file> ...]
+   ```
+
+   To check the entire repository, use:
+
+   ```bash
+   pre-commit run --all-files
+   ```
+
+5. Run tests with `pytest`:
+
+   ```bash
+   pytest
+   ```
+
+### Node.js
+
+The Node.js CLI lives in [`nodejs/`](nodejs/). From that directory:
+
+```bash
+npm install
+npm run lint
+npm test
+npm run deploy
+```
+
+See [nodejs/README.md](nodejs/README.md) for additional details.
 
 ## Usage
 
@@ -32,12 +83,19 @@ See [README_PYTHON.md](README_PYTHON.md) for details on setting up a Python deve
 python3 -m mcap_ros2idl_support --mcap-file sample.mcap
 ```
 
-This command automatically invokes the bundled Node `mcap-ros2idl-support` tool to
-extract type definitions before decoding messages. If you already have type
-definitions saved, you can provide them explicitly:
+This command automatically invokes the bundled Node `mcap-schema-extractor` tool to
+extract type definitions before decoding messages. You can also run this Node
+tool directly during development to generate type definitions:
 
 ```bash
-mcap-ros2idl-support --mcap-file sample.mcap
+npm --prefix nodejs run dev -- sample.mcap -o types.json
+```
+
+This runs the TypeScript source without first bundling the CLI. If you've
+installed the package, you can invoke the executable directly:
+
+```bash
+mcap-schema-extractor sample.mcap -o types.json
 ```
 
 Currently, the above command will print the whole messages. You can use the internal API to extract specific fields or perform more complex analysis, including visualization. See the `mcap_ros2idl_support/cli.py` file for the basic API usage.
