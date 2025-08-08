@@ -44,18 +44,46 @@ If the file contains `tf` messages, the output `types.json` may include:
 
 ```json
 {
-  "tf2_msgs/TFMessage": [
+  "1": [
     {
-      "name": "TFMessage",
+      "name": "tf2_msgs/msg/TFMessage",
       "definitions": [
         {
           "name": "transforms",
-          "type": "geometry_msgs/TransformStamped",
-          "isArray": true,
+          "type": "geometry_msgs/msg/TransformStamped",
+          "isComplex": true,
+          "arrayUpperBound": 120,
+          "isArray": true
+        }
+      ]
+    },
+    {
+      "name": "geometry_msgs/msg/TransformStamped",
+      "definitions": [
+        {
+          "name": "header",
+          "type": "std_msgs/msg/Header",
+          "isComplex": true
+        },
+        {
+          "name": "child_frame_id",
+          "type": "string",
+          "isComplex": false,
+          "upperBound": 255
+        },
+        {
+          "name": "transform",
+          "type": "geometry_msgs/msg/Transform",
           "isComplex": true
         }
       ]
-    }
-  ]
+    },
+    ...
+  ],
+  "2": [
+    {
+  ...
 }
-```
+  ```
+
+Here, the key values are the schema IDs, and the corresponding values are arrays of message definitions extracted from the MCAP file.
