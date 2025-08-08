@@ -14,7 +14,12 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+        working-directory: nodejs
       - run: npm run lint
+        working-directory: nodejs
       - run: npm run format:check
+        working-directory: nodejs
       - run: npm run build
+        working-directory: nodejs
       - run: npm test
+        working-directory: nodejs

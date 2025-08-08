@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-rm -rf dist
-npm run deploy
+rm -rf mcap_ros2idl_support/dist
+npm --prefix nodejs run deploy
 python -m build
