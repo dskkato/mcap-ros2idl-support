@@ -1,8 +1,8 @@
 name: Rust tests
 
 on:
-  push:
   pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   test:
