@@ -15,7 +15,7 @@ class FieldDefinition:
     isComplex: bool
     isArray: bool = False
     arrayUpperBound: int | None = None
-    defaultValue: str | None = None
+    defaultValue: str | int | float | bool | None = None
     upperBound: int | None = None
     enumType: str | None = None
     isConstant: bool = False
