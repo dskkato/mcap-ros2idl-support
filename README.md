@@ -14,8 +14,8 @@ It extracts schemas from rosbag2 messages and decodes their CDR payloads.
 Requires Node.js ≥20 and Python ≥3.10.
 
 ```bash
-npm install
-npm run deploy
+npm --prefix nodejs install
+npm --prefix nodejs run deploy
 ```
 
 ```bash
@@ -63,7 +63,7 @@ build output doesn't conflict with Python's `dist/` directory.
 3. Bundle the Node.js CLI:
 
    ```bash
-   npm run deploy
+   npm --prefix nodejs run deploy
    ```
 
 4. Build the wheel:
