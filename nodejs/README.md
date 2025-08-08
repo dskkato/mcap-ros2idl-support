@@ -84,6 +84,6 @@ If the file contains `tf` messages, the output `types.json` may include:
     {
   ...
 }
-  ```
+```
 
 Here, the key values are the schema IDs, and the corresponding values are arrays of message definitions extracted from the MCAP file.
