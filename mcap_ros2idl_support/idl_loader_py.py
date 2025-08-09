@@ -17,7 +17,7 @@ class SchemaInfo:
 
 
 def load_idl(mcap_file: str) -> dict[int, SchemaInfo]:
-    """Load type definitions and enums from a JSON file.
+    """Load type definitions and enums from an MCAP file.
 
     Returns a dictionary indexed by schema ID containing a ``SchemaInfo``
     instance with message type and enum maps.
