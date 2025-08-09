@@ -38,10 +38,12 @@ def load_idl(mcap_file: str) -> dict[int, SchemaInfo]:
                 s = parse_ros2idl(schema.data.decode("utf-8"))
             except ValueError as e:
                 print(f"Error parsing ros2idl: {e}")
+                continue
         elif schema.encoding == "ros2msg":
             s = parse_ros2msg(schema.data.decode("utf-8"))
         else:
             print(f"Unknown schema encoding: {schema.encoding}")
+            continue
         for type_def in s:
             field_dicts = [asdict(f) for f in type_def.definitions]
             type_map[type_def.name] = MessageType(type_def.name, field_dicts)
