@@ -4,7 +4,6 @@ import json
 import os
 import sys
 import tempfile
-import time
 from argparse import ArgumentParser
 
 from mcap.reader import make_reader
@@ -28,7 +27,6 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    start = time.perf_counter()
     if True:
         with tempfile.NamedTemporaryFile(suffix=".json") as tmp:
             type_defs_path = tmp.name
@@ -36,8 +34,7 @@ def main() -> None:
             schemas = load_idl(type_defs_path)
 
     else:
-        # Pure Python implementation
-        # Very slow compared to the nodejs version
+        # Pure Python implementation (experimental)
         from .idl_loader_py import load_idl as load_idl_py
 
         schemas = load_idl_py(args.mcap_file)
@@ -46,9 +43,6 @@ def main() -> None:
         schema_id: CdrReader(info.type_map, info.enum_map)
         for schema_id, info in schemas.items()
     }
-    end = time.perf_counter()
-
-    print(f"Time taken to load IDL: {end - start:.2f} seconds")
 
     with open(args.mcap_file, "rb") as f:
         reader = make_reader(f)
