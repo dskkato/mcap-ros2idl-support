@@ -27,15 +27,22 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    with tempfile.NamedTemporaryFile(suffix=".json") as tmp:
-        type_defs_path = tmp.name
-        run_node_cli([args.mcap_file, "-o", type_defs_path])
+    if True:
+        with tempfile.NamedTemporaryFile(suffix=".json") as tmp:
+            type_defs_path = tmp.name
+            run_node_cli([args.mcap_file, "-o", type_defs_path])
+            schemas = load_idl(type_defs_path)
 
-        schemas = load_idl(type_defs_path)
-        id_to_cdr_reader = {
-            schema_id: CdrReader(info.type_map, info.enum_map)
-            for schema_id, info in schemas.items()
-        }
+    else:
+        # Pure Python implementation (experimental)
+        from .idl_loader_py import load_idl as load_idl_py
+
+        schemas = load_idl_py(args.mcap_file)
+
+    id_to_cdr_reader = {
+        schema_id: CdrReader(info.type_map, info.enum_map)
+        for schema_id, info in schemas.items()
+    }
 
     with open(args.mcap_file, "rb") as f:
         reader = make_reader(f)
