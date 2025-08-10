@@ -1,6 +1,6 @@
 import json
 
-from mcap_ros2idl_support.idl_loader import load_idl  # noqa: E402
+from mcap_ros2idl_support.idl_loader import load_idl
 
 
 def test_load_idl(tmp_path):
