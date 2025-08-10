@@ -1,0 +1,6 @@
+[submodule "ros-typescript"]
+	path = ros-typescript
+	url = https://github.com/dskkato/ros-typescript
+[submodule "omgidl"]
+	path = omgidl
+	url = https://github.com/dskkato/omgidl
