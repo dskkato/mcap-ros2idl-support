@@ -41,7 +41,11 @@ def main() -> None:
 
     else:
         # Pure Python implementation (experimental)
-        sys.path.append(str(Path(__file__).resolve().parents[1] / "ros-typescript"))
+        if args.ros_typescript_path is None:
+            raise RuntimeError(
+                "The --ros-typescript-path argument is required for the pure Python implementation."
+            )
+        sys.path.append(args.ros_typescript_path)
         from mcap_ros2idl_support.idl_loader_py import load_idl as load_idl_py
 
         schemas = load_idl_py(args.mcap_file)
