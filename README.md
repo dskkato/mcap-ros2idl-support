@@ -13,18 +13,6 @@ It extracts schemas from rosbag2 messages and decodes their CDR payloads.
 
 Requires Python ≥3.10.
 
-This repository uses Git submodules. After cloning, initialize them with:
-
-```bash
-git submodule update --init --recursive
-```
-
-Alternatively, clone the repository with submodules already checked out:
-
-```bash
-git clone --recurse-submodules <repository-url>
-```
-
 Install the Python package:
 
 ```bash
