@@ -11,15 +11,33 @@ It extracts schemas from rosbag2 messages and decodes their CDR payloads.
 
 ## Installation
 
-Requires Node.js ≥20 and Python ≥3.10.
+Requires Python ≥3.10. Node.js ≥20 is only needed if you plan to use the Node.js CLI.
+
+This repository uses Git submodules. After cloning, initialize them with:
+
+```bash
+git submodule update --init --recursive
+```
+
+Alternatively, clone the repository with submodules already checked out:
+
+```bash
+git clone --recurse-submodules <repository-url>
+```
+
+Install the Python package:
+
+```bash
+pip install .
+```
+
+### Node.js CLI (optional)
+
+If you want to use the Node.js implementation, install Node.js ≥20 and set up the CLI:
 
 ```bash
 npm --prefix nodejs install
 npm --prefix nodejs run deploy
-```
-
-```bash
-pip install .
 ```
 
 ## Development
@@ -66,7 +84,7 @@ pip install .
 
 ### Node.js
 
-The Node.js CLI lives in [`nodejs/`](nodejs/). From that directory:
+The Node.js CLI lives in [`nodejs/`](nodejs/). It requires Node.js ≥20. From that directory:
 
 ```bash
 npm install
