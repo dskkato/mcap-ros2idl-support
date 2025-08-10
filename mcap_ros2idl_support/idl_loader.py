@@ -42,7 +42,7 @@ def load_idl(mcap_file: str) -> dict[int, SchemaInfo]:
         elif schema.encoding == "ros2msg":
             s = parse_ros2msg(schema.data.decode("utf-8"))
         else:
-            print(f"Unknown schema encoding: {schema.encoding}")
+            print(f"Unknown schema encoding: {schema.encoding} for schema ID: {schema_id}")
             continue
         for type_def in s:
             field_dicts = [asdict(f) for f in type_def.definitions]
