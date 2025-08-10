@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
 authors = [{ name = "dskkato" }]
-dependencies = ["mcap>=1.3.0", "pyserde>=0.24.0"]
+dependencies = ["lark>=1.2.0", "mcap>=1.3.0", "pyserde>=0.24.0"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
@@ -28,7 +28,25 @@ dev = ["pre-commit", "pytest", "maturin>=1.5,<2", "build"]
 mcap-ros2idl-support = "mcap_ros2idl_support.cli:main"
 
 [tool.setuptools]
-packages = ["mcap_ros2idl_support"]
+packages = [
+    "mcap_ros2idl_support",
+    "rosmsg",
+    "rostime",
+    "message_definition",
+    "omgidl_parser",
+    "omgidl_serialization",
+    "ros2idl_parser",
+    "foxglove_message_definition",
+]
+
+[tool.setuptools.package-dir]
+rosmsg = "ros-typescript/python_ros/rosmsg"
+rostime = "ros-typescript/python_ros/rostime"
+message_definition = "ros-typescript/python_ros/message_definition"
+omgidl_parser = "omgidl/python_omgidl/omgidl_parser"
+omgidl_serialization = "omgidl/python_omgidl/omgidl_serialization"
+ros2idl_parser = "omgidl/python_omgidl/ros2idl_parser"
+foxglove_message_definition = "omgidl/python_omgidl/foxglove_message_definition"
 
 [tool.setuptools.package-data]
 mcap_ros2idl_support = ["dist/index.js"]
