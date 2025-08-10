@@ -34,6 +34,7 @@ class Ros2DecodeFactory(DecoderFactory):
 
     def __init__(self) -> None:
         self._readers: dict[int, CdrReader] = {}
+        self._unsupported_schema_ids: set[int] = set()
 
     def _build_reader(self, schema: Schema) -> Optional[CdrReader]:
         if schema.encoding == "ros2idl":
@@ -67,10 +68,15 @@ class Ros2DecodeFactory(DecoderFactory):
     ) -> Optional[Callable[[bytes], object]]:
         if message_encoding != "cdr" or schema is None:
             return None
+
+        if schema.id in self._unsupported_schema_ids:
+            return None
+
         reader = self._readers.get(schema.id)
         if reader is None:
             reader = self._build_reader(schema)
             if reader is None:
+                self._unsupported_schema_ids.add(schema.id)
                 return None
             self._readers[schema.id] = reader
         type_name = ros2_type_name_from_schema_name(schema.name)
