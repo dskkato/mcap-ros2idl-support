@@ -45,9 +45,6 @@ omgidl_serialization = "omgidl/python_omgidl/omgidl_serialization"
 ros2idl_parser = "omgidl/python_omgidl/ros2idl_parser"
 foxglove_message_definition = "omgidl/python_omgidl/foxglove_message_definition"
 
-[tool.setuptools.package-data]
-mcap_ros2idl_support = ["dist/index.js"]
-
 [tool.black]
 line-length = 88
 
