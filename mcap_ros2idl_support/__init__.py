@@ -1,5 +1,5 @@
 from .cdr_reader import CdrReader, Field, MessageType
-from .decode_factory import CdrDecodeFactory, make_decoder_factory
+from .decode_factory import Ros2DecodeFactory
 from .idl_loader import SchemaInfo, load_idl
 
 __all__ = [
@@ -8,6 +8,5 @@ __all__ = [
     "CdrReader",
     "SchemaInfo",
     "load_idl",
-    "CdrDecodeFactory",
-    "make_decoder_factory",
+    "Ros2DecodeFactory",
 ]

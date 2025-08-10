@@ -7,8 +7,7 @@ from argparse import ArgumentParser
 
 from mcap.reader import make_reader
 
-from mcap_ros2idl_support.decode_factory import CdrDecodeFactory
-from mcap_ros2idl_support.idl_loader import load_idl
+from mcap_ros2idl_support import Ros2DecodeFactory
 
 
 def main() -> None:
@@ -30,8 +29,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    schemas = load_idl(args.mcap_file)
-    factory = CdrDecodeFactory(schemas)
+    factory = Ros2DecodeFactory()
 
     with open(args.mcap_file, "rb") as f:
         reader = make_reader(f, decoder_factories=[factory])
