@@ -13,7 +13,6 @@ authors = [{ name = "dskkato" }]
 dependencies = [
     "lark>=1.2.0",
     "mcap>=1.3.0",
-    "pyserde>=0.24.0",
     "rosmsg @ git+https://github.com/dskkato/ros-typescript.git@main",
     "omgidl @ git+https://github.com/dskkato/omgidl.git@main",
 ]
