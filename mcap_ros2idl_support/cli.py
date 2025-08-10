@@ -8,7 +8,7 @@ from argparse import ArgumentParser
 
 from mcap.reader import make_reader
 
-from .cdr_reader import CdrReader
+from .decode_factory import CdrDecodeFactory
 from .idl_loader import load_idl
 from .node_cli import run_node_cli
 
@@ -44,20 +44,13 @@ def main() -> None:
 
         schemas = load_idl_py(args.mcap_file)
 
-    id_to_cdr_reader = {
-        schema_id: CdrReader(info.type_map, info.enum_map)
-        for schema_id, info in schemas.items()
-    }
+    factory = CdrDecodeFactory(schemas)
 
     with open(args.mcap_file, "rb") as f:
-        reader = make_reader(f)
-        for topic, schema, message in reader.iter_messages():
-            print(f"Topic: {topic}, Schema ID: {schema.schema_id}")
-            if schema.schema_id not in id_to_cdr_reader:
-                print(f"Schema ID {schema.schema_id} not found in type definitions.")
-                continue
-            msg = id_to_cdr_reader[schema.schema_id].read(topic.name, message.data)
-            print(json.dumps(msg, indent=2))
+        reader = make_reader(f, decoder_factories=[factory])
+        for decoded in reader.iter_decoded_messages():
+            print(f"Topic: {decoded.channel.topic}, Schema ID: {decoded.schema.id}")
+            print(json.dumps(decoded.decoded_message, indent=2))
 
 
 if __name__ == "__main__":
