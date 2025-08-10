@@ -3,26 +3,20 @@ import struct
 from mcap.reader import make_reader
 from mcap.writer import Writer
 
-from mcap_ros2idl_support import CdrDecodeFactory, MessageType, SchemaInfo
+from mcap_ros2idl_support import Ros2DecodeFactory
 
 CDR_LE_V1_HEADER = b"\x00\x01\x00\x00"  # CDR little-endian header (version 1)
 
 
 def test_decode_factory_integration(tmp_path):
-    type_map = {
-        "Msg": MessageType(
-            "Msg",
-            [{"name": "value", "type": "uint32", "isComplex": False}],
-        )
-    }
-    info = SchemaInfo(type_map, {})
-    factory = CdrDecodeFactory({1: info})
+    factory = Ros2DecodeFactory()
 
     mcap_path = tmp_path / "test.mcap"
     with open(mcap_path, "wb") as f:
         writer = Writer(f)
         writer.start()
-        schema_id = writer.register_schema("Msg", "ros2msg", b"")
+        schema_data = b"uint32 value\n"
+        schema_id = writer.register_schema("Msg", "ros2msg", schema_data)
         channel_id = writer.register_channel("/test", "cdr", schema_id)
         data = CDR_LE_V1_HEADER + struct.pack("<I", 42)
         writer.add_message(channel_id, 0, data, 0)
