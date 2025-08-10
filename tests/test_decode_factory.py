@@ -1,9 +1,7 @@
 import struct
-import sys
-from pathlib import Path
 
-from mcap.reader import make_reader  # noqa: E402
-from mcap.writer import Writer  # noqa: E402
+from mcap.reader import make_reader
+from mcap.writer import Writer
 
 from mcap_ros2idl_support import CdrDecodeFactory, MessageType, SchemaInfo  # noqa: E402
 
