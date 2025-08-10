@@ -343,6 +343,3 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 Vite.config.ts.timestamp-*
-
-# Ignore bundled CLI output
-mcap_ros2idl_support/dist/

@@ -1,17 +1,17 @@
 # mcap-ros2idl-support
 
+
 A Python library to read and parse ROS 2 MCAP bag files without a ROS 2 runtime.
 It extracts schemas from rosbag2 messages and decodes their CDR payloads.
 
 ## Features
 
 - Read-only parsing of MCAP/rosbag2 files without needing a ROS 2 runtime
-- Supports ROS 2 IDL (including potential enum support) through [@foxglove/ros2idl-parser](https://www.npmjs.com/package/@foxglove/ros2idl-parser)
 - Treats each struct as a Python `dict` instead of generating dynamic classes
 
 ## Installation
 
-Requires Python ≥3.10. Node.js ≥20 is only needed if you plan to use the Node.js CLI.
+Requires Python ≥3.10.
 
 This repository uses Git submodules. After cloning, initialize them with:
 
@@ -31,18 +31,7 @@ Install the Python package:
 pip install .
 ```
 
-### Node.js CLI (optional)
-
-If you want to use the Node.js implementation, install Node.js ≥20 and set up the CLI:
-
-```bash
-npm --prefix nodejs install
-npm --prefix nodejs run deploy
-```
-
 ## Development
-
-### Python
 
 1. Create and activate a virtual environment:
 
@@ -82,48 +71,13 @@ npm --prefix nodejs run deploy
    pytest
    ```
 
-### Node.js
-
-The Node.js CLI lives in [`nodejs/`](nodejs/). It requires Node.js ≥20. From that directory:
-
-```bash
-npm install
-npm run lint
-npm test
-npm run deploy
-```
-
-See [nodejs/README.md](nodejs/README.md) for additional details.
-
 ## Usage
 
 ```bash
 python examples/cli.py --mcap-file sample.mcap
 ```
 
-Add `--use-nodejs-impl` to delegate type extraction to the bundled Node
-`mcap-schema-extractor` tool instead of the experimental pure-Python parser.
-You can also run this Node tool directly during development to generate type
-definitions:
-
-```bash
-npm --prefix nodejs run dev -- sample.mcap -o types.json
-```
-
-This runs the TypeScript source without first bundling the CLI. If you've
-installed the package, you can invoke the executable directly:
-
-```bash
-mcap-schema-extractor sample.mcap -o types.json
-```
-
-Currently, the above command will print the whole messages. You can use the internal API to extract specific fields or perform more complex analysis, including visualization. See the `examples/cli.py` file for the basic API usage.
-
 ## Building the wheel
-
-This project bundles a Node.js CLI into the Python package. When generating a
-wheel for distribution, remove any previous build artifacts so that Node.js
-build output doesn't conflict with Python's `dist/` directory.
 
 1. Clean old artifacts:
 
@@ -137,13 +91,7 @@ build output doesn't conflict with Python's `dist/` directory.
    python -m pip install --upgrade build
    ```
 
-3. Bundle the Node.js CLI:
-
-   ```bash
-   npm --prefix nodejs run deploy
-   ```
-
-4. Build the wheel:
+3. Build the wheel:
 
    ```bash
    python -m build
