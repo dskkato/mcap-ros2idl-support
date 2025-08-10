@@ -37,7 +37,7 @@ def load_idl(mcap_file: str) -> dict[int, SchemaInfo]:
             try:
                 s = parse_ros2idl(schema.data.decode("utf-8"))
             except ValueError as e:
-                print(f"Error parsing ros2idl: {e}")
+                print(f"Error parsing ros2idl for schema ID {schema_id}: {e}")
                 continue
         elif schema.encoding == "ros2msg":
             s = parse_ros2msg(schema.data.decode("utf-8"))
