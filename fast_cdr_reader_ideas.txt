@@ -1,0 +1,11 @@
+Ideas for optimizing CdrReader:
+
+- Implement a FastCdrReader subclass that caches ``struct.Struct`` instances for
+  each primitive type to avoid repeatedly parsing format strings during
+  decoding.
+- Replace ``rosmsg2_serialization``'s ``CdrReader`` with ``FastCdrReader`` to
+  reduce overhead when reading many small fields.
+- Run benchmarks comparing the stock reader and the optimized version to
+  quantify performance improvements.
+- Consider contributing the optimization directly to the ``cdr`` package so all
+  consumers benefit.
