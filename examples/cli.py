@@ -10,6 +10,7 @@ from mcap.reader import make_reader
 
 from mcap_ros2idl_support.decode_factory import CdrDecodeFactory
 from mcap_ros2idl_support.idl_loader import load_idl
+from mcap_ros2idl_support.idl_loader_py import load_idl as load_idl_py
 from mcap_ros2idl_support.node_cli import run_node_cli
 
 
@@ -40,17 +41,15 @@ def main() -> None:
 
     else:
         # Pure Python implementation (experimental)
-        from mcap_ros2idl_support.idl_loader_py import load_idl as load_idl_py
-
         schemas = load_idl_py(args.mcap_file)
 
     factory = CdrDecodeFactory(schemas)
 
     with open(args.mcap_file, "rb") as f:
         reader = make_reader(f, decoder_factories=[factory])
-        for schema, channel, message, decoded_message in reader.iter_decoded_messages():
-            print(f"Topic: {channel.topic}, Schema ID: {schema.id}")
-            print(json.dumps(decoded_message, indent=2))
+        for decoded in reader.iter_decoded_messages():
+            print(f"Topic: {decoded.channel.topic}, Schema ID: {decoded.schema.id}")
+            print(json.dumps(decoded.decoded_message, indent=2))
 
 
 if __name__ == "__main__":

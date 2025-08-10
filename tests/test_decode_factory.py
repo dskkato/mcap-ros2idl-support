@@ -1,14 +1,9 @@
 import struct
-import sys
-from pathlib import Path
 
-# Ensure local package is importable
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from mcap.reader import make_reader
+from mcap.writer import Writer
 
-from mcap.reader import make_reader  # noqa: E402
-from mcap.writer import Writer  # noqa: E402
-
-from mcap_ros2idl_support import CdrDecodeFactory, MessageType, SchemaInfo  # noqa: E402
+from mcap_ros2idl_support import CdrDecodeFactory, MessageType, SchemaInfo
 
 CDR_LE_V1_HEADER = b"\x00\x01\x00\x00"  # CDR little-endian header (version 1)
 
