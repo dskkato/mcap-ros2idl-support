@@ -25,15 +25,14 @@ def main() -> None:
         required=True,
         help="Path to the MCAP file to read messages from.",
     )
-    # add flag to use python implementation
     parser.add_argument(
-        "--use-python-impl",
+        "--use-nodejs-impl",
         action="store_true",
-        help="Use pure Python implementation (experimental).",
+        help="Use Node.js implementation (experimental).",
     )
     args = parser.parse_args()
 
-    if not args.use_python_impl:
+    if args.use_nodejs_impl:
         with tempfile.NamedTemporaryFile(suffix=".json") as tmp:
             type_defs_path = tmp.name
             run_node_cli([args.mcap_file, "-o", type_defs_path])
