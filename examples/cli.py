@@ -48,9 +48,9 @@ def main() -> None:
 
     with open(args.mcap_file, "rb") as f:
         reader = make_reader(f, decoder_factories=[factory])
-        for decoded in reader.iter_decoded_messages():
-            print(f"Topic: {decoded.channel.topic}, Schema ID: {decoded.schema.id}")
-            print(json.dumps(decoded.decoded_message, indent=2))
+        for schema, channel, message, decoded_message in reader.iter_decoded_messages():
+            print(f"Topic: {channel.topic}, Schema ID: {schema.id}")
+            print(json.dumps(decoded_message, indent=2))
 
 
 if __name__ == "__main__":
