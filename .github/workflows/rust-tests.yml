@@ -12,6 +12,8 @@ jobs:
         working-directory: rust/mcap-rs
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - uses: dtolnay/rust-toolchain@stable
       - name: Run cargo test
         run: cargo test --locked
