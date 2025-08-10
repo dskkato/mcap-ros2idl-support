@@ -1,6 +1,6 @@
 import struct
 
-from mcap_ros2idl_support.cdr_reader import CdrReader, MessageType  # noqa: E402
+from mcap_ros2idl_support.cdr_reader import CdrReader, MessageType
 
 
 def test_enum_with_uint8():
