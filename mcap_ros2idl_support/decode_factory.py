@@ -2,25 +2,13 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict
 from typing import Callable, Optional
 
 from mcap.decoder import DecoderFactory
 from mcap.records import Schema
 from ros2idl_parser import parse_ros2idl
 from rosmsg import parse as parse_ros2msg
-
-from .cdr_reader import CdrReader, MessageType
-
-
-def ros2_type_name_from_schema_name(name: str) -> str:
-    """Convert an MCAP schema name to a ROS 2 type name.
-
-    MCAP schemas use C++ style ``::`` namespace separators, while ROS 2
-    type names use ``/``. This helper performs the necessary transformation.
-    """
-
-    return name.replace("::", "/")
+from rosmsg2_serialization import MessageReader
 
 
 class Ros2DecodeFactory(DecoderFactory):
@@ -33,10 +21,10 @@ class Ros2DecodeFactory(DecoderFactory):
     """
 
     def __init__(self) -> None:
-        self._readers: dict[int, CdrReader] = {}
+        self._readers: dict[int, MessageReader] = {}
         self._unsupported_schema_ids: set[int] = set()
 
-    def _build_reader(self, schema: Schema) -> Optional[CdrReader]:
+    def _build_reader(self, schema: Schema) -> Optional[MessageReader]:
         if schema.encoding == "ros2idl":
             try:
                 parsed = parse_ros2idl(schema.data.decode("utf-8"))
@@ -52,17 +40,7 @@ class Ros2DecodeFactory(DecoderFactory):
             )
             return None
 
-        type_map: dict[str, MessageType] = {}
-        enum_map: dict[str, dict[int, str]] = {}
-        for type_def in parsed:
-            name = type_def.name or schema.name
-            field_dicts = [asdict(f) for f in type_def.definitions]
-            type_map[name] = MessageType(name, field_dicts)
-            enum_candidates = [f for f in type_def.definitions if f.isConstant]
-            if enum_candidates:
-                enum_lookup = {f.value: f.name for f in enum_candidates}
-                enum_map[name] = enum_lookup
-        return CdrReader(type_map, enum_map)
+        return MessageReader(parsed)
 
     def decoder_for(
         self, message_encoding: str, schema: Optional[Schema]
@@ -80,9 +58,8 @@ class Ros2DecodeFactory(DecoderFactory):
                 self._unsupported_schema_ids.add(schema.id)
                 return None
             self._readers[schema.id] = reader
-        type_name = ros2_type_name_from_schema_name(schema.name)
 
         def decode(data: bytes) -> object:
-            return reader.read(type_name, data)
+            return reader.read_message(data)
 
         return decode
