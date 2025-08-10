@@ -1,4 +1,4 @@
-"""Command-line interface for reading CDR messages from MCAP files."""
+"""Example command-line interface for reading CDR messages from MCAP files."""
 
 import json
 import os
@@ -8,17 +8,17 @@ from argparse import ArgumentParser
 
 from mcap.reader import make_reader
 
-from .decode_factory import CdrDecodeFactory
-from .idl_loader import load_idl
-from .node_cli import run_node_cli
+from mcap_ros2idl_support.decode_factory import CdrDecodeFactory
+from mcap_ros2idl_support.idl_loader import load_idl
+from mcap_ros2idl_support.node_cli import run_node_cli
 
 
 def main() -> None:
-    """Entry point for the ``mcap-ros2idl-support`` command."""
-    prog = "mcap-ros2idl-support"
-    if sys.argv[0].endswith("__main__.py"):
-        prog = f"{os.path.basename(sys.executable)} -m mcap_ros2idl_support"
-    parser = ArgumentParser(prog=prog, description="Read CDR messages from MCAP files.")
+    """Decode CDR messages from an MCAP file using ``mcap_ros2idl_support``."""
+    parser = ArgumentParser(
+        prog=os.path.basename(sys.argv[0]),
+        description="Read CDR messages from MCAP files.",
+    )
     parser.add_argument(
         "--mcap-file",
         type=str,
@@ -40,7 +40,7 @@ def main() -> None:
 
     else:
         # Pure Python implementation (experimental)
-        from .idl_loader_py import load_idl as load_idl_py
+        from mcap_ros2idl_support.idl_loader_py import load_idl as load_idl_py
 
         schemas = load_idl_py(args.mcap_file)
 

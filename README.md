@@ -1,6 +1,6 @@
 # mcap-ros2idl-support
 
-A command-line and Python tool to read and parse ROS 2 MCAP bag files without a ROS 2 runtime.
+A Python library to read and parse ROS 2 MCAP bag files without a ROS 2 runtime.
 It extracts schemas from rosbag2 messages and decodes their CDR payloads.
 
 ## Features
@@ -98,7 +98,7 @@ installed the package, you can invoke the executable directly:
 mcap-schema-extractor sample.mcap -o types.json
 ```
 
-Currently, the above command will print the whole messages. You can use the internal API to extract specific fields or perform more complex analysis, including visualization. See the `mcap_ros2idl_support/cli.py` file for the basic API usage.
+Currently, the above command will print the whole messages. You can use the internal API to extract specific fields or perform more complex analysis, including visualization. See the `examples/cli.py` file for the basic API usage.
 
 ## Building the wheel
 
