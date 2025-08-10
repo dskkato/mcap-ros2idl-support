@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "mcap-ros2idl-support"
 version = "0.0.1"
-description = "A command-line and Python tool to read and parse ROS 2 MCAP bag files without a ROS 2 runtime."
+description = "A Python library to read and parse ROS 2 MCAP bag files without a ROS 2 runtime."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
@@ -23,9 +23,6 @@ classifiers = [
 
 [project.optional-dependencies]
 dev = ["pre-commit", "pytest", "maturin>=1.5,<2", "build"]
-
-[project.scripts]
-mcap-ros2idl-support = "mcap_ros2idl_support.cli:main"
 
 [tool.setuptools]
 packages = [
