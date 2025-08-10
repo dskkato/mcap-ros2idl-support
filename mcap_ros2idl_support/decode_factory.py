@@ -40,7 +40,8 @@ class Ros2DecodeFactory(DecoderFactory):
         if schema.encoding == "ros2idl":
             try:
                 parsed = parse_ros2idl(schema.data.decode("utf-8"))
-            except ValueError as e:
+            except AttributeError as e:
+                # When the schema contains union types, the parsing may fail
                 print(f"Error parsing ros2idl for schema ID {schema.id}: {e}")
                 return None
         elif schema.encoding == "ros2msg":
