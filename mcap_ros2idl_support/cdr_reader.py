@@ -1,5 +1,6 @@
 import io
 import struct
+from types import SimpleNamespace
 
 
 class Field:
@@ -44,7 +45,7 @@ class CdrReader:
         self.endianness = "<"
         self._structs: dict[str, struct.Struct] = {}
 
-    def read(self, typename, data: bytes):
+    def read(self, typename, data: bytes) -> SimpleNamespace:
         self.stream = io.BytesIO(data)
         header = self.stream.read(4)
         if len(header) < 4:
@@ -76,8 +77,8 @@ class CdrReader:
         padding = (size - (relative_offset % size)) % size
         self.stream.seek(padding, io.SEEK_CUR)
 
-    def _read_message(self, msg_type: "MessageType"):
-        result = {}
+    def _read_message(self, msg_type: "MessageType") -> SimpleNamespace:
+        result: dict[str, object] = {}
         types = self.types
         read_array = self._read_array
         read_message = self._read_message
@@ -89,7 +90,7 @@ class CdrReader:
                 result[field.name] = read_message(types[field.type])
             else:
                 result[field.name] = read_primitive(field.type, field.enum_type)
-        return result
+        return SimpleNamespace(**result)
 
     def _read_array(self, field):
         # Sequence length is prefixed with UInt32

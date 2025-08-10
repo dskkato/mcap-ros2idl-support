@@ -1,6 +1,7 @@
 import struct
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 # Insert the parent directory at the start of sys.path to ensure tests
 # use the local (uninstalled) version of the package. This is intentional
@@ -46,7 +47,7 @@ def test_enum_with_uint8():
     enum_map = {"Status": {0: "UNKNOWN", 2: "OK"}}
     reader = CdrReader(type_map, enum_map)
     data = b"\x00\x00\x00\x00" + b"\x02"
-    assert reader.read("Msg", data) == {"status": "OK"}
+    assert reader.read("Msg", data) == SimpleNamespace(status="OK")
 
 
 def test_little_endian_uint32():
@@ -64,7 +65,7 @@ def test_little_endian_uint32():
     }
     reader = CdrReader(type_map)
     data = b"\x00\x01\x00\x00" + struct.pack("<I", 0x01020304)
-    assert reader.read("Msg", data) == {"value": 0x01020304}
+    assert reader.read("Msg", data) == SimpleNamespace(value=0x01020304)
 
 
 def test_big_endian_uint32():
@@ -82,4 +83,4 @@ def test_big_endian_uint32():
     }
     reader = CdrReader(type_map)
     data = b"\x00\x00\x00\x00" + struct.pack(">I", 0x01020304)
-    assert reader.read("Msg", data) == {"value": 0x01020304}
+    assert reader.read("Msg", data) == SimpleNamespace(value=0x01020304)

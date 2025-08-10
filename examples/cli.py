@@ -49,7 +49,7 @@ def main() -> None:
         reader = make_reader(f, decoder_factories=[factory])
         for decoded in reader.iter_decoded_messages():
             print(f"Topic: {decoded.channel.topic}, Schema ID: {decoded.schema.id}")
-            print(json.dumps(decoded.decoded_message, indent=2))
+            print(json.dumps(vars(decoded.decoded_message), indent=2))
 
 
 if __name__ == "__main__":

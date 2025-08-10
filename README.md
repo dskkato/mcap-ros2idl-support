@@ -7,7 +7,7 @@ It extracts schemas from rosbag2 messages and decodes their CDR payloads.
 
 - Read-only parsing of MCAP/rosbag2 files without needing a ROS 2 runtime
 - Supports ROS 2 IDL (including potential enum support) through [@foxglove/ros2idl-parser](https://www.npmjs.com/package/@foxglove/ros2idl-parser)
-- Treats each struct as a Python `dict` instead of generating dynamic classes
+- Parses each struct into a `SimpleNamespace` for attribute-style access
 
 ## Installation
 

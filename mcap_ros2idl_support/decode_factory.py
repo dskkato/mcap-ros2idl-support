@@ -27,7 +27,7 @@ class CdrDecodeFactory(DecoderFactory):
     Instances of this factory can be supplied to
     :py:meth:`mcap.reader.make_reader` so that calls to
     :py:meth:`mcap.reader.McapReader.iter_decoded_messages` will return
-    dictionaries representing ROS 2 messages.
+    :class:`types.SimpleNamespace` objects representing ROS 2 messages.
     """
 
     def __init__(self, schemas: dict[int, SchemaInfo]):

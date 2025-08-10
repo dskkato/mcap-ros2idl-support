@@ -1,6 +1,5 @@
 import struct
-import sys
-from pathlib import Path
+from types import SimpleNamespace
 
 from mcap.reader import make_reader  # noqa: E402
 from mcap.writer import Writer  # noqa: E402
@@ -35,4 +34,4 @@ def test_decode_factory_integration(tmp_path):
         decoded = list(reader.iter_decoded_messages())
         assert len(decoded) == 1
         _, _, _, msg = decoded[0]
-        assert msg == {"value": 42}
+        assert msg == SimpleNamespace(value=42)
