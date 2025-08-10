@@ -13,8 +13,8 @@ authors = [{ name = "dskkato" }]
 dependencies = [
     "lark>=1.2.0",
     "mcap>=1.3.0",
-    "rosmsg @ git+https://github.com/dskkato/ros-typescript.git@main",
-    "omgidl @ git+https://github.com/dskkato/omgidl.git@main",
+    "rosmsg @ git+https://github.com/dskkato/ros-typescript.git@02c44dc1dfda6ebb59aea523e194d0d604c584b9",
+    "omgidl @ git+https://github.com/dskkato/omgidl.git@adc0d0971d45feea155d3177815e0cdf92215779",
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
