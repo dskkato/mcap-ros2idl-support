@@ -8,7 +8,7 @@ from mcap.decoder import DecoderFactory
 from mcap.records import Schema
 from ros2idl_parser import parse_ros2idl
 from rosmsg import parse as parse_ros2msg
-from rosmsg2_serialization import MessageReader
+from rosmsg2_serialization import MessageReader, MessageReaderOptions
 
 
 class Ros2DecodeFactory(DecoderFactory):
@@ -20,9 +20,17 @@ class Ros2DecodeFactory(DecoderFactory):
     dictionaries representing ROS 2 messages.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, enum_as_string: bool = False) -> None:
+        """Create a new :class:`Ros2DecodeFactory`.
+
+        Args:
+            enum_as_string: When ``True``, enumerated values are returned as
+                their string representations instead of integers.
+        """
+
         self._readers: dict[int, MessageReader] = {}
         self._unsupported_schema_ids: set[int] = set()
+        self._enum_as_string = enum_as_string
 
     def _build_reader(self, schema: Schema) -> Optional[MessageReader]:
         if schema.encoding == "ros2idl":
@@ -40,7 +48,8 @@ class Ros2DecodeFactory(DecoderFactory):
             )
             return None
 
-        return MessageReader(parsed)
+        options = MessageReaderOptions(enumAsString=self._enum_as_string)
+        return MessageReader(parsed, options)
 
     def decoder_for(
         self, message_encoding: str, schema: Optional[Schema]
