@@ -27,9 +27,14 @@ def main() -> None:
         action="store_true",
         help="Use Node.js implementation (experimental).",
     )
+    parser.add_argument(
+        "--enum-as-string",
+        action="store_true",
+        help="Return enumerated values as their string names.",
+    )
     args = parser.parse_args()
 
-    factory = Ros2DecodeFactory()
+    factory = Ros2DecodeFactory(enum_as_string=args.enum_as_string)
 
     with open(args.mcap_file, "rb") as f:
         reader = make_reader(f, decoder_factories=[factory])

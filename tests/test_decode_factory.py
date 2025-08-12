@@ -31,14 +31,40 @@ def test_decode_factory_integration(tmp_path):
         assert msg == {"value": 42}
 
 
+def test_decode_factory_enum_as_string(tmp_path):
+    factory = Ros2DecodeFactory(enum_as_string=True)
+
+    mcap_path = tmp_path / "test_enum.mcap"
+    with open(mcap_path, "wb") as f:
+        writer = Writer(f)
+        writer.start()
+        schema_data = (
+            b"module example { enum Status { UNKNOWN, OK }; "
+            b"struct Msg { example::Status status; }; };"
+        )
+        schema_id = writer.register_schema("example/Msg", "ros2idl", schema_data)
+        channel_id = writer.register_channel("/test", "cdr", schema_id)
+        import struct
+
+        data = CDR_LE_V1_HEADER + struct.pack("<I", 1)
+        writer.add_message(channel_id, 0, data, 0)
+        writer.finish()
+
+    with open(mcap_path, "rb") as f:
+        reader = make_reader(f, decoder_factories=[factory])
+        decoded = list(reader.iter_decoded_messages())
+        assert len(decoded) == 1
+        _, _, _, msg = decoded[0]
+        assert msg == {"status": "OK"}
+
+
 def test_decoder_caches_unsupported_schema(monkeypatch):
     factory = Ros2DecodeFactory()
-    schema_data = b"module example { union U switch(int32){ case 0: int32 a; }; };"
     schema = Schema(
         id=1,
-        name="example/U",
-        encoding="ros2idl",
-        data=schema_data,
+        name="example/Invalid",
+        encoding="unknown",
+        data=b"",
     )
 
     assert factory.decoder_for("cdr", schema) is None

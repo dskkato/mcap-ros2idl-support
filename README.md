@@ -65,6 +65,12 @@ pip install .
 python examples/cli.py --mcap-file sample.mcap
 ```
 
+Use the ``--enum-as-string`` flag to return enumeration values as strings:
+
+```bash
+python examples/cli.py --mcap-file sample.mcap --enum-as-string
+```
+
 ## Building the wheel
 
 1. Clean old artifacts:
@@ -102,7 +108,8 @@ python examples/cli.py --mcap-file sample.mcap
 
 - Uses Foxglove’s `@foxglove/ros2idl-parser` to handle `.idl` files in addition to classic `.msg` definitions.
 - Only reading is supported; writing MCAP files is out of scope.
-- Enumerations defined in IDL are parsed and returned as their string values when present.
+- Enumerations defined in IDL can be returned as their string values by
+  enabling ``enum_as_string``.
 - The goal is to enable parsing MCAP bags without any ROS 2 dependencies to make offline analysis easier.
 
 ## Rust prototype

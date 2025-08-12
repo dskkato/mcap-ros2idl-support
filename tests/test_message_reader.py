@@ -1,22 +1,48 @@
 import struct
 
+from ros2idl_parser import parse_ros2idl
 from rosmsg import parse
 
-from mcap_ros2idl_support import MessageReader
+from mcap_ros2idl_support import MessageReader, MessageReaderOptions
 
 
-def test_enum_with_uint8():
-    definitions = parse(
+def test_enum_with_uint32():
+    definitions = parse_ros2idl(
         """
-        uint8 UNKNOWN=0
-        uint8 OK=2
-        ==
-        uint8 status
+        module example {
+          enum Status {
+            UNKNOWN,
+            OK
+          };
+          struct Msg {
+            example::Status status;
+          };
+        };
         """
     )
     reader = MessageReader(definitions)
-    data = b"\x00\x00\x00\x00" + b"\x02"
-    assert reader.read_message(data) == {"status": 2}
+    data = b"\x00\x01\x00\x00" + struct.pack("<I", 1)
+    assert reader.read_message(data) == {"status": 1}
+
+
+def test_enum_with_uint32_as_string():
+    definitions = parse_ros2idl(
+        """
+        module example {
+          enum Status {
+            UNKNOWN,
+            OK
+          };
+          struct Msg {
+            example::Status status;
+          };
+        };
+        """
+    )
+    options = MessageReaderOptions(enumAsString=True)
+    reader = MessageReader(definitions, options)
+    data = b"\x00\x01\x00\x00" + struct.pack("<I", 1)
+    assert reader.read_message(data) == {"status": "OK"}
 
 
 def test_little_endian_uint32():
