@@ -6,9 +6,13 @@ from typing import Callable, Optional
 
 from mcap.decoder import DecoderFactory
 from mcap.records import Schema
-from ros2idl_parser import parse_ros2idl
-from rosmsg import parse as parse_ros2msg
-from rosmsg2_serialization import MessageReader, MessageReaderOptions
+
+from mcap_ros2idl_support.ros2idl_parser import parse_ros2idl
+from mcap_ros2idl_support.rosmsg import parse as parse_ros2msg
+from mcap_ros2idl_support.rosmsg2_serialization import (
+    MessageReader,
+    MessageReaderOptions,
+)
 
 
 class Ros2DecodeFactory(DecoderFactory):

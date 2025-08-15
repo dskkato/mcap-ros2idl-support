@@ -12,7 +12,8 @@ license = { file = "LICENSE" }
 authors = [{ name = "dskkato" }]
 dependencies = [
     "mcap>=1.3.0",
-    "rosmsg @ git+https://github.com/dskkato/ros-typescript.git@main"
+    "lark",
+    "typing-extensions",
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
