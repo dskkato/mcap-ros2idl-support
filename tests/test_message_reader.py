@@ -1,9 +1,8 @@
 import struct
 
-from ros2idl_parser import parse_ros2idl
-from rosmsg import parse
-
 from mcap_ros2idl_support import MessageReader, MessageReaderOptions
+from mcap_ros2idl_support.ros2idl_parser import parse_ros2idl
+from mcap_ros2idl_support.rosmsg import parse
 
 
 def test_enum_with_uint32():
