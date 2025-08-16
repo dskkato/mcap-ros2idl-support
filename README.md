@@ -9,6 +9,19 @@ It extracts schemas from rosbag2 messages and decodes their CDR payloads.
 - Read-only parsing of MCAP/rosbag2 files without needing a ROS 2 runtime
 - Treats each struct as a Python `dict` instead of generating dynamic classes
 
+## Project structure
+
+The repository is organized as follows:
+
+- `mcap_ros2idl_support/` – core Python package
+  - `cdr/` – helpers for reading and writing CDR streams
+  - `ros2idl_parser/` – parser for `ros2idl` schema definitions
+  - `rosmsg/` – parser for classic `.msg` message definitions
+  - `rosmsg2_serialization/` – utilities for decoding CDR payloads into dictionaries
+  - `decode_factory.py` – integrates parsers and CDR readers with the MCAP decoder
+- `examples/` – example CLI demonstrating how to iterate decoded messages
+- `tests/` – unit tests for the library
+
 ## Installation
 
 Requires Python ≥3.10.
