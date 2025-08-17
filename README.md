@@ -124,11 +124,3 @@ python examples/cli.py --mcap-file sample.mcap --enum-as-string
 - Enumerations defined in IDL can be returned as their string values by
   enabling ``enum_as_string``.
 - The goal is to enable parsing MCAP bags without any ROS 2 dependencies to make offline analysis easier.
-
-## Rust prototype
-
-A lightweight Rust implementation demonstrating MCAP parsing is available in [`rust/mcap-rs`](rust/mcap-rs). The CLI accepts an MCAP file, invokes the bundled Node tool to extract type definitions, and prints each decoded message. The crate also exposes library functions for counting messages and decoding CDR payloads. Python bindings for these utilities can be installed with:
-
-```bash
-maturin develop --manifest-path rust/mcap-rs/Cargo.toml
-```
