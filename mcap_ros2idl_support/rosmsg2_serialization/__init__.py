@@ -1,7 +1,7 @@
-from mcap_ros2idl_support.rosmsg2_serialization.MessageReader import (
+from mcap_ros2idl_support.rosmsg2_serialization.message_reader import (
     MessageReader,
     MessageReaderOptions,
 )
-from mcap_ros2idl_support.rosmsg2_serialization.MessageWriter import MessageWriter
+from mcap_ros2idl_support.rosmsg2_serialization.message_writer import MessageWriter
 
 __all__ = ["MessageReader", "MessageReaderOptions", "MessageWriter"]
