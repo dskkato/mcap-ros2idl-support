@@ -131,7 +131,7 @@ The repository is organized as follows:
 ## Design notes
 
 - Uses Foxglove’s `@foxglove/ros2idl-parser` to handle `.idl` files in addition to classic `.msg` definitions.
-- MCAP file writing is out of scope, though helpers exist to encode CDR messages.
+- MCAP file writing is not supported, though CDR encoding helpers are available for individual messages.
 - Enumerations defined in IDL can be returned as their string values by
   enabling ``enum_as_string``.
 - The goal is to enable parsing MCAP bags without any ROS 2 dependencies to make offline analysis easier.
