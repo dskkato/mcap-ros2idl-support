@@ -204,6 +204,7 @@ class _Transformer(Transformer):
         "long long": "int64",
         "long": "int32",
         "boolean": "bool",
+        "octet": "uint8",
     }
 
     _BUILTIN_TYPES = {
