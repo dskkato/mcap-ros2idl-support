@@ -6,7 +6,7 @@ It extracts schemas from rosbag2 messages and decodes their CDR payloads.
 
 ## Features
 
-- Parse MCAP/rosbag2 files without needing a ROS 2 runtime
+- Read-only parsing of MCAP/rosbag2 files without needing a ROS 2 runtime
 - Treats each struct as a Python `dict` instead of generating dynamic classes
 
 ## Installation
