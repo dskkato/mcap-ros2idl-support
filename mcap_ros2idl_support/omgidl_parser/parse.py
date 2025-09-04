@@ -376,25 +376,19 @@ class _Transformer(Transformer):
         unresolved = False
         for item in items:
             if isinstance(item, str):
-                if item in self._constants:
-                    val = self._constants[item]
-                    if isinstance(val, (int, float, bool, str)):
-                        expr_items.append(val)
-                    else:
-                        expr_items.append(val)
-                        unresolved = True
-                else:
-                    expr_items.append(item)
+                val = self._constants.get(item, item)
+                if val is item:
                     unresolved = True
+                elif not isinstance(val, (int, float, bool, str)):
+                    unresolved = True
+                expr_items.append(val)
             else:
                 expr_items.append(item)
 
         if not unresolved:
             total = expr_items[0]
             for val in expr_items[1:]:
-                if not isinstance(total, (int, float)) or not isinstance(
-                    val, (int, float)
-                ):
+                if not isinstance(total, (int, float)) or not isinstance(val, (int, float)):
                     raise ValueError("Addition only allowed on numeric constants")
                 total += val
             return total
@@ -522,6 +516,11 @@ class _Transformer(Transformer):
             return val
         return expr
 
+    def _resolve_sequence_bound(self, bound: Any) -> Any:
+        if bound is not None and not isinstance(bound, int):
+            return int(self._eval_expr(bound))
+        return bound
+
     def resolve_constants(
         self, definitions: List[Struct | Module | Constant | Enum | Typedef | Union]
     ) -> None:
@@ -532,32 +531,22 @@ class _Transformer(Transformer):
                     self._constants[d.name] = d.value
                 elif isinstance(d, Struct):
                     for f in d.fields:
-                        if f.sequence_bound is not None and not isinstance(
-                            f.sequence_bound, int
-                        ):
-                            f.sequence_bound = int(self._eval_expr(f.sequence_bound))
+                        f.sequence_bound = self._resolve_sequence_bound(
+                            f.sequence_bound
+                        )
                 elif isinstance(d, Typedef):
-                    if d.sequence_bound is not None and not isinstance(
-                        d.sequence_bound, int
-                    ):
-                        d.sequence_bound = int(self._eval_expr(d.sequence_bound))
+                    d.sequence_bound = self._resolve_sequence_bound(
+                        d.sequence_bound
+                    )
                 elif isinstance(d, Union):
                     for case in d.cases:
-                        if case.field.sequence_bound is not None and not isinstance(
-                            case.field.sequence_bound, int
-                        ):
-                            case.field.sequence_bound = int(
-                                self._eval_expr(case.field.sequence_bound)
-                            )
-                        predicates = []
-                        for p in case.predicates:
-                            predicates.append(self._eval_expr(p))
-                        case.predicates = predicates
-                    if d.default and d.default.sequence_bound is not None and not isinstance(
-                        d.default.sequence_bound, int
-                    ):
-                        d.default.sequence_bound = int(
-                            self._eval_expr(d.default.sequence_bound)
+                        case.field.sequence_bound = self._resolve_sequence_bound(
+                            case.field.sequence_bound
+                        )
+                        case.predicates = [self._eval_expr(p) for p in case.predicates]
+                    if d.default:
+                        d.default.sequence_bound = self._resolve_sequence_bound(
+                            d.default.sequence_bound
                         )
                 elif isinstance(d, Module):
                     resolve_defs(d.definitions)
