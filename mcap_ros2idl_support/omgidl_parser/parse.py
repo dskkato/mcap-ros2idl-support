@@ -267,14 +267,6 @@ class _Transformer(Transformer):
     def sequence_type(self, items):
         inner = items[0]
         bound = items[1] if len(items) > 1 else None
-        if bound is not None:
-            try:
-                bound = int(bound)
-            except ValueError:
-                raise ValueError(
-                    f"Invalid sequence bound value '{bound}'"
-                    " in IDL. Expected an integer."
-                )
         return ("sequence", inner, bound)
 
     def string_type(self, items):
@@ -380,23 +372,33 @@ class _Transformer(Transformer):
         return float(token)
 
     def const_sum(self, items):
-        total = None
-        for idx, item in enumerate(items):
+        expr_items: list[Any] = []
+        unresolved = False
+        for item in items:
             if isinstance(item, str):
-                if item not in self._constants:
-                    raise ValueError(f"Unknown identifier '{item}'")
-                val = self._constants[item]
+                if item in self._constants:
+                    val = self._constants[item]
+                    if isinstance(val, (int, float, bool, str)):
+                        expr_items.append(val)
+                    else:
+                        expr_items.append(val)
+                        unresolved = True
+                else:
+                    expr_items.append(item)
+                    unresolved = True
             else:
-                val = item
-            if idx == 0:
-                total = val
-            else:
+                expr_items.append(item)
+
+        if not unresolved:
+            total = expr_items[0]
+            for val in expr_items[1:]:
                 if not isinstance(total, (int, float)) or not isinstance(
                     val, (int, float)
                 ):
                     raise ValueError("Addition only allowed on numeric constants")
                 total += val
-        return total
+            return total
+        return expr_items
 
     def const_value(self, items):
         (value,) = items
@@ -491,6 +493,77 @@ class _Transformer(Transformer):
         definitions = [item for item in items[1:] if item is not None]
         return Module(name=name, definitions=definitions)
 
+    def _eval_expr(self, expr: Any, seen: Optional[set[str]] = None) -> Any:
+        if seen is None:
+            seen = set()
+        if isinstance(expr, list):
+            total = None
+            for item in expr:
+                val = self._eval_expr(item, seen)
+                if total is None:
+                    total = val
+                else:
+                    if not isinstance(total, (int, float)) or not isinstance(
+                        val, (int, float)
+                    ):
+                        raise ValueError(
+                            "Addition only allowed on numeric constants"
+                        )
+                    total += val
+            return total
+        if isinstance(expr, str):
+            if expr not in self._constants:
+                raise ValueError(f"Unknown identifier '{expr}'")
+            if expr in seen:
+                raise ValueError(f"Circular constant reference '{expr}'")
+            seen.add(expr)
+            val = self._eval_expr(self._constants[expr], seen)
+            seen.remove(expr)
+            return val
+        return expr
+
+    def resolve_constants(
+        self, definitions: List[Struct | Module | Constant | Enum | Typedef | Union]
+    ) -> None:
+        def resolve_defs(defs: List[Struct | Module | Constant | Enum | Typedef | Union]):
+            for d in defs:
+                if isinstance(d, Constant):
+                    d.value = self._eval_expr(d.value)
+                    self._constants[d.name] = d.value
+                elif isinstance(d, Struct):
+                    for f in d.fields:
+                        if f.sequence_bound is not None and not isinstance(
+                            f.sequence_bound, int
+                        ):
+                            f.sequence_bound = int(self._eval_expr(f.sequence_bound))
+                elif isinstance(d, Typedef):
+                    if d.sequence_bound is not None and not isinstance(
+                        d.sequence_bound, int
+                    ):
+                        d.sequence_bound = int(self._eval_expr(d.sequence_bound))
+                elif isinstance(d, Union):
+                    for case in d.cases:
+                        if case.field.sequence_bound is not None and not isinstance(
+                            case.field.sequence_bound, int
+                        ):
+                            case.field.sequence_bound = int(
+                                self._eval_expr(case.field.sequence_bound)
+                            )
+                        predicates = []
+                        for p in case.predicates:
+                            predicates.append(self._eval_expr(p))
+                        case.predicates = predicates
+                    if d.default and d.default.sequence_bound is not None and not isinstance(
+                        d.default.sequence_bound, int
+                    ):
+                        d.default.sequence_bound = int(
+                            self._eval_expr(d.default.sequence_bound)
+                        )
+                elif isinstance(d, Module):
+                    resolve_defs(d.definitions)
+
+        resolve_defs(definitions)
+
     def resolve_types(
         self, definitions: List[Struct | Module | Constant | Enum | Typedef | Union]
     ):
@@ -575,5 +648,6 @@ def parse_idl(source: str) -> List[Struct | Module | Constant | Enum | Typedef |
     tree = parser.parse(source)
     transformer = _Transformer()
     result = transformer.transform(tree)
+    transformer.resolve_constants(result)
     transformer.resolve_types(result)
     return result
