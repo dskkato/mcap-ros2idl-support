@@ -1,6 +1,6 @@
 import pytest
 
-from mcap_ros2idl_support.omgidl_parser.parse import parse_idl, Constant, Struct
+from mcap_ros2idl_support.omgidl_parser.parse import Constant, Struct, parse_idl
 
 
 def test_forward_constant_reference() -> None:

@@ -388,7 +388,9 @@ class _Transformer(Transformer):
         if not unresolved:
             total = expr_items[0]
             for val in expr_items[1:]:
-                if not isinstance(total, (int, float)) or not isinstance(val, (int, float)):
+                if not isinstance(total, (int, float)) or not isinstance(
+                    val, (int, float)
+                ):
                     raise ValueError("Addition only allowed on numeric constants")
                 total += val
             return total
@@ -500,9 +502,7 @@ class _Transformer(Transformer):
                     if not isinstance(total, (int, float)) or not isinstance(
                         val, (int, float)
                     ):
-                        raise ValueError(
-                            "Addition only allowed on numeric constants"
-                        )
+                        raise ValueError("Addition only allowed on numeric constants")
                     total += val
             return total
         if isinstance(expr, str):
@@ -524,7 +524,9 @@ class _Transformer(Transformer):
     def resolve_constants(
         self, definitions: List[Struct | Module | Constant | Enum | Typedef | Union]
     ) -> None:
-        def resolve_defs(defs: List[Struct | Module | Constant | Enum | Typedef | Union]):
+        def resolve_defs(
+            defs: List[Struct | Module | Constant | Enum | Typedef | Union],
+        ):
             for d in defs:
                 if isinstance(d, Constant):
                     d.value = self._eval_expr(d.value)
@@ -535,9 +537,7 @@ class _Transformer(Transformer):
                             f.sequence_bound
                         )
                 elif isinstance(d, Typedef):
-                    d.sequence_bound = self._resolve_sequence_bound(
-                        d.sequence_bound
-                    )
+                    d.sequence_bound = self._resolve_sequence_bound(d.sequence_bound)
                 elif isinstance(d, Union):
                     for case in d.cases:
                         case.field.sequence_bound = self._resolve_sequence_bound(
