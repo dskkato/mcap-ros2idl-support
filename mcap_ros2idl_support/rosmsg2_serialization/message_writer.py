@@ -53,9 +53,7 @@ class MessageWriter:
                 (d for d in definitions if not _is_constant_module(d)), None
             )
         if root_definition is None:
-            raise ValueError(
-                "MessageWriter initialized with no root MessageDefinition"
-            )
+            raise ValueError("MessageWriter initialized with no root MessageDefinition")
         self._root_definition = root_definition
         self._definitions = {d.name or "": d for d in definitions}
 
