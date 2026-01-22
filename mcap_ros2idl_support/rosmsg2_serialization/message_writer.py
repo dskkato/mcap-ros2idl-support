@@ -4,6 +4,7 @@ from typing import Any, Callable, Dict, List, Mapping, Sequence
 
 from mcap_ros2idl_support.cdr import CdrWriter
 from mcap_ros2idl_support.message_definition import (
+    AggregatedKind,
     DefaultValue,
     MessageDefinition,
     MessageDefinitionField,
@@ -34,97 +35,189 @@ PRIMITIVE_SIZES: Dict[str, int] = {
 
 
 class MessageWriter:
-    _root_definition: List[MessageDefinitionField]
-    _definitions: Mapping[str, List[MessageDefinitionField]]
+    _root_definition: MessageDefinition
+    _definitions: Mapping[str, MessageDefinition]
 
     def __init__(self, definitions: Sequence[MessageDefinition]) -> None:
         root_definition = next(
-            (d for d in definitions if not _is_constant_module(d)), None
+            (
+                d
+                for d in definitions
+                if d.aggregatedKind == AggregatedKind.STRUCT
+                and not _is_constant_module(d)
+            ),
+            None,
         )
         if root_definition is None:
+            root_definition = next(
+                (d for d in definitions if not _is_constant_module(d)), None
+            )
+        if root_definition is None:
             raise ValueError("MessageReader initialized with no root MessageDefinition")
-        self._root_definition = list(root_definition.definitions)
-        self._definitions = {d.name or "": list(d.definitions) for d in definitions}
+        self._root_definition = root_definition
+        self._definitions = {d.name or "": d for d in definitions}
+
+        enum_name_to_value: Dict[str, Dict[str, int]] = {}
+        enum_value_to_name: Dict[str, Dict[int, str]] = {}
+        for d in definitions:
+            if not _is_constant_module(d):
+                continue
+            name = d.name or ""
+            name_map: Dict[str, int] = {}
+            value_map: Dict[int, str] = {}
+            for field in d.definitions:
+                if isinstance(field.value, int):
+                    value = int(field.value)
+                    name_map[field.name] = value
+                    value_map[value] = field.name
+            if name_map:
+                enum_name_to_value[name] = name_map
+                enum_value_to_name[name] = value_map
+
+        self._enum_name_to_value = enum_name_to_value
+        self._union_enum_name_to_value: Dict[str, Dict[str, int]] = {}
+        for d in definitions:
+            if d.aggregatedKind != AggregatedKind.UNION:
+                continue
+            case_values: set[int] = set()
+            for case in d.cases:
+                preds = case.predicates or []
+                case_values.update(int(p) for p in preds)
+            prefix = (d.name or "").rsplit("/", 1)[0]
+            mapping_name = None
+            for enum_name, values in enum_value_to_name.items():
+                if prefix and not enum_name.startswith(prefix):
+                    continue
+                if case_values.issubset(values.keys()):
+                    mapping_name = enum_name
+                    break
+            if mapping_name is not None:
+                self._union_enum_name_to_value[d.name or ""] = enum_name_to_value[
+                    mapping_name
+                ]
 
     def calculate_byte_size(self, message: Any) -> int:
-        return self._byte_size(self._root_definition, message, 4)
+        return self._byte_size_definition(self._root_definition, message, 4)
 
     def write_message(self, message: Any, output: bytearray | None = None) -> bytes:
         writer = CdrWriter(
             buffer=output,
             size=None if output is not None else self.calculate_byte_size(message),
         )
-        self._write(self._root_definition, message, writer)
+        self._write_definition(self._root_definition, message, writer)
         return writer.data
 
-    def _byte_size(
-        self, definition: Sequence[MessageDefinitionField], message: Any, offset: int
+    def _byte_size_definition(
+        self, definition: MessageDefinition, message: Any, offset: int
+    ) -> int:
+        if definition.aggregatedKind == AggregatedKind.UNION:
+            return self._byte_size_union(definition, message, offset)
+        if definition.aggregatedKind != AggregatedKind.STRUCT:
+            raise ValueError(
+                f"Cannot serialize message definition of kind {definition.aggregatedKind}"
+            )
+        return self._byte_size_struct(definition, message, offset)
+
+    def _byte_size_struct(
+        self, definition: MessageDefinition, message: Any, offset: int
     ) -> int:
         message_obj = message if isinstance(message, dict) else {}
         new_offset = offset
 
-        if not message_definition_has_data_fields(definition):
+        if not message_definition_has_data_fields(definition.definitions):
             return offset + self._get_primitive_size("uint8")
 
-        for field in definition:
+        for field in definition.definitions:
             if field.isConstant is True:
                 continue
             nested_message = (
                 message_obj.get(field.name) if isinstance(message_obj, dict) else None
             )
-            if field.isArray is True:
-                array_length = field.arrayLength or _field_length(nested_message)
-                data_is_array = isinstance(nested_message, (list, tuple))
-                data_array = list(nested_message) if data_is_array else []
-                if field.arrayLength is None:
-                    new_offset += _padding(new_offset, 4)
-                    new_offset += 4
-                if field.isComplex is True:
-                    nested_definition = self._get_definition(field.type)
-                    for i in range(array_length):
-                        entry = data_array[i] if i < len(data_array) else {}
-                        new_offset = self._byte_size(
-                            nested_definition, entry, new_offset
-                        )
-                elif field.type == "string":
-                    for i in range(array_length):
-                        entry = data_array[i] if i < len(data_array) else ""
-                        new_offset += _padding(new_offset, 4)
-                        new_offset += 4 + len(entry) + 1
-                else:
-                    entry_size = self._get_primitive_size(field.type)
-                    alignment = 4 if field.type in {"time", "duration"} else entry_size
-                    new_offset += _padding(new_offset, alignment)
-                    new_offset += entry_size * array_length
-            else:
-                if field.isComplex is True:
-                    nested_definition = self._get_definition(field.type)
-                    entry = nested_message if isinstance(nested_message, dict) else {}
-                    new_offset = self._byte_size(nested_definition, entry, new_offset)
-                elif field.type == "string":
-                    entry = nested_message if isinstance(nested_message, str) else ""
-                    new_offset += _padding(new_offset, 4)
-                    new_offset += 4 + len(entry) + 1
-                else:
-                    entry_size = self._get_primitive_size(field.type)
-                    alignment = 4 if field.type in {"time", "duration"} else entry_size
-                    new_offset += _padding(new_offset, alignment)
-                    new_offset += entry_size
+            new_offset = self._byte_size_field(field, nested_message, new_offset)
         return new_offset
 
-    def _write(
-        self,
-        definition: Sequence[MessageDefinitionField],
-        message: Any,
-        writer: CdrWriter,
+    def _byte_size_union(
+        self, definition: MessageDefinition, message: Any, offset: int
+    ) -> int:
+        message_obj = message if isinstance(message, dict) else {}
+        switch_type = definition.switchType or ""
+        discr = self._resolve_union_discriminator(definition, message_obj)
+        discr = self._coerce_union_discriminator(discr, switch_type)
+        entry_size = self._get_primitive_size(switch_type or "uint32")
+        alignment = 4 if switch_type in {"time", "duration"} else entry_size
+        new_offset = offset + _padding(offset, alignment) + entry_size
+        field = _union_case_field(definition, discr)
+        if field is None:
+            raise ValueError(f"No union field matches discriminant {discr}")
+        nested_message = message_obj.get(field.name)
+        return self._byte_size_field(field, nested_message, new_offset)
+
+    def _byte_size_field(
+        self, field: MessageDefinitionField, nested_message: Any, offset: int
+    ) -> int:
+        new_offset = offset
+        if field.isArray is True:
+            array_length = field.arrayLength or _field_length(nested_message)
+            data_is_array = isinstance(nested_message, (list, tuple))
+            data_array = list(nested_message) if data_is_array else []
+            if field.arrayLength is None:
+                new_offset += _padding(new_offset, 4)
+                new_offset += 4
+            if field.isComplex is True:
+                nested_definition = self._get_definition(field.type)
+                for i in range(array_length):
+                    entry = data_array[i] if i < len(data_array) else {}
+                    new_offset = self._byte_size_definition(
+                        nested_definition, entry, new_offset
+                    )
+            elif field.type == "string":
+                for i in range(array_length):
+                    entry = data_array[i] if i < len(data_array) else ""
+                    new_offset += _padding(new_offset, 4)
+                    new_offset += 4 + len(entry) + 1
+            else:
+                entry_size = self._get_primitive_size(field.type)
+                alignment = 4 if field.type in {"time", "duration"} else entry_size
+                new_offset += _padding(new_offset, alignment)
+                new_offset += entry_size * array_length
+            return new_offset
+        if field.isComplex is True:
+            nested_definition = self._get_definition(field.type)
+            entry = nested_message if isinstance(nested_message, dict) else {}
+            return self._byte_size_definition(nested_definition, entry, new_offset)
+        if field.type == "string":
+            entry = nested_message if isinstance(nested_message, str) else ""
+            new_offset += _padding(new_offset, 4)
+            new_offset += 4 + len(entry) + 1
+            return new_offset
+        entry_size = self._get_primitive_size(field.type)
+        alignment = 4 if field.type in {"time", "duration"} else entry_size
+        new_offset += _padding(new_offset, alignment)
+        new_offset += entry_size
+        return new_offset
+
+    def _write_definition(
+        self, definition: MessageDefinition, message: Any, writer: CdrWriter
+    ) -> None:
+        if definition.aggregatedKind == AggregatedKind.UNION:
+            self._write_union(definition, message, writer)
+            return
+        if definition.aggregatedKind != AggregatedKind.STRUCT:
+            raise ValueError(
+                f"Cannot serialize message definition of kind {definition.aggregatedKind}"
+            )
+        self._write_struct(definition, message, writer)
+
+    def _write_struct(
+        self, definition: MessageDefinition, message: Any, writer: CdrWriter
     ) -> None:
         message_obj = message if isinstance(message, dict) else {}
 
-        if not message_definition_has_data_fields(definition):
+        if not message_definition_has_data_fields(definition.definitions):
             _uint8(0, 0, writer)
             return
 
-        for field in definition:
+        for field in definition.definitions:
             if field.isConstant is True:
                 continue
 
@@ -132,43 +225,133 @@ class MessageWriter:
                 message_obj.get(field.name) if isinstance(message_obj, dict) else None
             )
 
-            if field.isArray is True:
-                array_length = field.arrayLength or _field_length(nested_message)
-                data_is_array = isinstance(nested_message, (list, tuple))
-                data_array = list(nested_message) if data_is_array else []
-                if field.arrayLength is None:
-                    writer.sequenceLength(array_length)
-                if field.arrayLength is not None and nested_message is not None:
-                    given_length = _field_length(nested_message)
-                    if given_length != field.arrayLength:
-                        raise ValueError(
-                            "Expected {exp} items for fixed-length array field {name} "
-                            "but received {got}".format(
-                                exp=field.arrayLength,
-                                name=field.name,
-                                got=given_length,
-                            )
-                        )
-                if field.isComplex is True:
-                    nested_definition = self._get_definition(field.type)
-                    for i in range(array_length):
-                        entry = data_array[i] if i < len(data_array) else {}
-                        self._write(nested_definition, entry, writer)
-                else:
-                    array_writer = self._get_primitive_array_writer(field.type)
-                    array_writer(
-                        nested_message, field.defaultValue, writer, field.arrayLength
-                    )
-            else:
-                if field.isComplex is True:
-                    nested_definition = self._get_definition(field.type)
-                    entry = nested_message if nested_message is not None else {}
-                    self._write(nested_definition, entry, writer)
-                else:
-                    primitive_writer = self._get_primitive_writer(field.type)
-                    primitive_writer(nested_message, field.defaultValue, writer, None)
+            self._write_field(field, nested_message, writer)
 
-    def _get_definition(self, datatype: str) -> List[MessageDefinitionField]:
+    def _write_union(
+        self, definition: MessageDefinition, message: Any, writer: CdrWriter
+    ) -> None:
+        message_obj = message if isinstance(message, dict) else {}
+        discr = self._resolve_union_discriminator(definition, message_obj)
+        switch_type = definition.switchType or ""
+        discr = self._coerce_union_discriminator(discr, switch_type)
+        switch_writer = self._get_primitive_writer(switch_type)
+        switch_writer(discr, 0, writer, None)
+
+        field = _union_case_field(definition, discr)
+        if field is None:
+            raise ValueError(f"No union field matches discriminant {discr}")
+        nested_message = message_obj.get(field.name)
+        self._write_field(field, nested_message, writer)
+
+    def _write_field(
+        self, field: MessageDefinitionField, nested_message: Any, writer: CdrWriter
+    ) -> None:
+        if field.isArray is True:
+            array_length = field.arrayLength or _field_length(nested_message)
+            data_is_array = isinstance(nested_message, (list, tuple))
+            data_array = list(nested_message) if data_is_array else []
+            if field.arrayLength is None:
+                writer.sequenceLength(array_length)
+            if field.arrayLength is not None and nested_message is not None:
+                given_length = _field_length(nested_message)
+                if given_length != field.arrayLength:
+                    raise ValueError(
+                        "Expected {exp} items for fixed-length array field {name} "
+                        "but received {got}".format(
+                            exp=field.arrayLength,
+                            name=field.name,
+                            got=given_length,
+                        )
+                    )
+            if field.isComplex is True:
+                nested_definition = self._get_definition(field.type)
+                for i in range(array_length):
+                    entry = data_array[i] if i < len(data_array) else {}
+                    self._write_definition(nested_definition, entry, writer)
+            else:
+                write_value, write_default = self._resolve_enum_inputs(
+                    nested_message, field.defaultValue, field.enumType
+                )
+                array_writer = self._get_primitive_array_writer(field.type)
+                array_writer(write_value, write_default, writer, field.arrayLength)
+            return
+        if field.isComplex is True:
+            nested_definition = self._get_definition(field.type)
+            entry = nested_message if nested_message is not None else {}
+            self._write_definition(nested_definition, entry, writer)
+            return
+        write_value, write_default = self._resolve_enum_inputs(
+            nested_message, field.defaultValue, field.enumType
+        )
+        primitive_writer = self._get_primitive_writer(field.type)
+        primitive_writer(write_value, write_default, writer, None)
+
+    def _resolve_enum_inputs(
+        self, value: Any, default: DefaultValue, enum_type: str | None
+    ) -> tuple[Any, DefaultValue]:
+        if enum_type is None:
+            return value, default
+        mapping = self._enum_name_to_value.get(enum_type)
+        if mapping is None:
+            return value, default
+        return (
+            self._convert_enum_value(value, mapping),
+            self._convert_enum_value(default, mapping),
+        )
+
+    def _convert_enum_value(
+        self, value: Any, mapping: Dict[str, int]
+    ) -> Any:  # noqa: D401
+        if value is None:
+            return None
+        if isinstance(value, str):
+            if value not in mapping:
+                raise ValueError(f"Unknown enumerator '{value}'")
+            return mapping[value]
+        if isinstance(value, Sequence) and not isinstance(
+            value, (str, bytes, bytearray)
+        ):
+            return [self._convert_enum_value(entry, mapping) for entry in value]
+        return value
+
+    def _resolve_union_discriminator(
+        self, definition: MessageDefinition, message_obj: Mapping[str, Any]
+    ) -> Any:
+        if "discriminator" not in message_obj:
+            raise ValueError(
+                f"Union {definition.name} requires a 'discriminator' entry"
+            )
+        discr = message_obj["discriminator"]
+        if isinstance(discr, str):
+            mapping = self._union_enum_name_to_value.get(definition.name or "")
+            if mapping is None or discr not in mapping:
+                raise ValueError(
+                    f"Unknown union discriminator '{discr}' for {definition.name}"
+                )
+            return mapping[discr]
+        return discr
+
+    def _coerce_union_discriminator(self, value: Any, switch_type: str) -> Any:
+        if switch_type in {
+            "int8",
+            "uint8",
+            "int16",
+            "uint16",
+            "int32",
+            "uint32",
+            "int64",
+            "uint64",
+            "char",
+            "byte",
+        }:
+            return int(value)
+        if switch_type in {"float32", "float64"}:
+            return float(value)
+        if switch_type == "bool":
+            return bool(value)
+        return value
+
+    def _get_definition(self, datatype: str) -> MessageDefinition:
         nested = self._definitions.get(datatype)
         if nested is None:
             raise ValueError(f"Unrecognized complex type {datatype}")
@@ -492,6 +675,15 @@ def _padding(offset: int, byte_width: int) -> int:
 
 def _is_constant_module(defn: MessageDefinition) -> bool:
     return len(defn.definitions) > 0 and all(f.isConstant for f in defn.definitions)
+
+
+def _union_case_field(
+    defn: MessageDefinition, discriminator: Any
+) -> MessageDefinitionField | None:
+    for case in defn.cases:
+        if case.predicates and discriminator in case.predicates:
+            return case.type
+    return defn.defaultCase
 
 
 __all__ = ["MessageWriter"]
