@@ -27,7 +27,9 @@ class Ros2EncodeFactory:
     # ------------------------------------------------------------------
     # Schema registration helpers
     # ------------------------------------------------------------------
-    def register_schema(self, schema_id: int, *, encoding: str, data: bytes | str) -> None:
+    def register_schema(
+        self, schema_id: int, *, encoding: str, data: bytes | str
+    ) -> None:
         """Register ``schema_id`` for subsequent :meth:`encode` calls."""
 
         self._writers_by_schema_id[schema_id] = self._writer_from_blob(encoding, data)
@@ -87,7 +89,9 @@ class Ros2EncodeFactory:
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
-    def _writer_from_blob(self, encoding: str, data: bytes | bytearray | str) -> MessageWriter:
+    def _writer_from_blob(
+        self, encoding: str, data: bytes | bytearray | str
+    ) -> MessageWriter:
         schema_bytes = self._ensure_bytes(data)
         key = (encoding, schema_bytes)
         writer = self._writers_by_blob.get(key)

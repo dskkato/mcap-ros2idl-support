@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List, Mapping, Sequence
+from typing import Any, Callable, Dict, Mapping, Sequence
 
 from mcap_ros2idl_support.cdr import CdrWriter
 from mcap_ros2idl_support.message_definition import (
@@ -114,7 +114,9 @@ class MessageWriter:
             return self._byte_size_union(definition, message, offset)
         if definition.aggregatedKind != AggregatedKind.STRUCT:
             raise ValueError(
-                f"Cannot serialize message definition of kind {definition.aggregatedKind}"
+                "Cannot serialize message definition of kind {}".format(
+                    definition.aggregatedKind
+                )
             )
         return self._byte_size_struct(definition, message, offset)
 
@@ -204,7 +206,9 @@ class MessageWriter:
             return
         if definition.aggregatedKind != AggregatedKind.STRUCT:
             raise ValueError(
-                f"Cannot serialize message definition of kind {definition.aggregatedKind}"
+                "Cannot serialize message definition of kind {}".format(
+                    definition.aggregatedKind
+                )
             )
         self._write_struct(definition, message, writer)
 
