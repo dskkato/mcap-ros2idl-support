@@ -195,7 +195,6 @@ def test_union_and_enum_encoding() -> None:
     expected = bytes.fromhex("00010000010000000600000068656c6c6f00000000000000")
     assert factory.encode_with_schema(schema, message) == expected
 
-
 def test_encode_decode_round_trip_union_and_enum() -> None:
     factory = Ros2EncodeFactory()
     idl = """module test {
