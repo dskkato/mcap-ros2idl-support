@@ -52,7 +52,10 @@ class Ros2DecodeFactory(DecoderFactory):
             )
             return None
 
-        options = MessageReaderOptions(enumAsString=self._enum_as_string)
+        options = MessageReaderOptions(
+            enumAsString=self._enum_as_string,
+            rootTypeName=schema.name,
+        )
         return MessageReader(parsed, options)
 
     def decoder_for(

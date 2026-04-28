@@ -58,6 +58,33 @@ def test_decode_factory_enum_as_string(tmp_path):
         assert msg == {"status": "OK"}
 
 
+def test_decode_factory_uses_schema_name_as_root_for_ros2idl(tmp_path):
+    factory = Ros2DecodeFactory()
+
+    mcap_path = tmp_path / "test_nested_root.mcap"
+    with open(mcap_path, "wb") as f:
+        writer = Writer(f)
+        writer.start()
+        schema_data = (
+            b"module example { "
+            b"struct Helper { uint32 nested; }; "
+            b"struct Msg { uint32 prefix; Helper helper; uint32 suffix; }; "
+            b"};"
+        )
+        schema_id = writer.register_schema("example/Msg", "ros2idl", schema_data)
+        channel_id = writer.register_channel("/test", "cdr", schema_id)
+        data = CDR_LE_V1_HEADER + struct.pack("<III", 1, 2, 3)
+        writer.add_message(channel_id, 0, data, 0)
+        writer.finish()
+
+    with open(mcap_path, "rb") as f:
+        reader = make_reader(f, decoder_factories=[factory])
+        decoded = list(reader.iter_decoded_messages())
+        assert len(decoded) == 1
+        _, _, _, msg = decoded[0]
+        assert msg == {"prefix": 1, "helper": {"nested": 2}, "suffix": 3}
+
+
 def test_decoder_caches_unsupported_schema(monkeypatch):
     factory = Ros2DecodeFactory()
     schema = Schema(
