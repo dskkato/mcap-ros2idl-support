@@ -48,9 +48,10 @@ class MessageReader:
         # ros2idl modules could have constant modules before the root struct used
         # to decode message
 
-        # If a preferred root name is provided, look for a struct with that name first.
-        # If not found, or if no preferred root name is provided, look for the first struct
-        # that is a struct module. If there are no struct modules, just use the first definition.
+        # If a preferred root name is provided, look for a struct with that name
+        # first. If not found, or if no preferred root name is provided, look for
+        # the first struct that is a struct module. If there are no struct modules,
+        # just use the first definition.
         root_definition = None
         if preferred_root_name:
             normalized_root_name = _normalize_type_name(preferred_root_name)
