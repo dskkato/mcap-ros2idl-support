@@ -207,6 +207,33 @@ def test_misc_cases(msg_def: str, arr: bytes, expected: dict) -> None:
     assert reader.read_message(buffer) == expected
 
 
+def test_message_reader_prefers_explicit_root_type_name_for_ros2idl() -> None:
+    defs = parse_ros2idl(
+        """
+        module example {
+          module msg {
+            struct Helper {
+              uint32 nested;
+            };
+
+            struct Msg {
+              uint32 prefix;
+              Helper helper;
+              uint32 suffix;
+            };
+          };
+        };
+        """
+    )
+    reader = MessageReader(defs, MessageReaderOptions(rootTypeName="example/msg/Msg"))
+    buffer = b"\x00\x01\x00\x00" + struct.pack("<III", 1, 2, 3)
+    assert reader.read_message(buffer) == {
+        "prefix": 1,
+        "helper": {"nested": 2},
+        "suffix": 3,
+    }
+
+
 @pytest.mark.parametrize(
     "msg_def,arr,expected,ros1_expected",
     [

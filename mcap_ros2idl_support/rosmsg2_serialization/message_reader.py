@@ -24,6 +24,7 @@ ArrayDeserializer = Callable[[CdrReader, int], Any]
 class MessageReaderOptions:
     timeType: str = "sec,nanosec"  # "sec,nanosec" or "sec,nsec"
     enumAsString: bool = False
+    rootTypeName: str | None = None
 
 
 class MessageReader:
@@ -42,18 +43,38 @@ class MessageReader:
         opts = options or MessageReaderOptions()
         time_type = opts.timeType
         self._enum_as_string = opts.enumAsString
+        preferred_root_name = opts.rootTypeName
 
         # ros2idl modules could have constant modules before the root struct used
         # to decode message
-        root_definition = next(
-            (
-                d
-                for d in definitions
-                if d.aggregatedKind == AggregatedKind.STRUCT
-                and not _is_constant_module(d)
-            ),
-            None,
-        )
+
+        # Prefer the explicitly requested root struct when one is provided.
+        # Otherwise, fall back to the first non-constant struct definition, then
+        # to the first non-constant definition of any kind.
+        root_definition = None
+        if preferred_root_name:
+            normalized_root_name = _normalize_type_name(preferred_root_name)
+            root_definition = next(
+                (
+                    d
+                    for d in definitions
+                    if d.aggregatedKind == AggregatedKind.STRUCT
+                    and d.name == normalized_root_name
+                    and not _is_constant_module(d)
+                ),
+                None,
+            )
+
+        if root_definition is None:
+            root_definition = next(
+                (
+                    d
+                    for d in definitions
+                    if d.aggregatedKind == AggregatedKind.STRUCT
+                    and not _is_constant_module(d)
+                ),
+                None,
+            )
         if root_definition is None:
             root_definition = next(
                 (d for d in definitions if not _is_constant_module(d)), None
@@ -229,6 +250,10 @@ class MessageReader:
 
 def _is_constant_module(defn: MessageDefinition) -> bool:
     return len(defn.definitions) > 0 and all(f.isConstant for f in defn.definitions)
+
+
+def _normalize_type_name(type_name: str) -> str:
+    return type_name.replace("::", "/")
 
 
 def _union_case_field(
