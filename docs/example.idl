@@ -1,0 +1,9 @@
+/** \file example.idl
+ *  \brief Example IDL file with Doxygen comments.
+ */
+
+/** A simple struct demonstrating Doxygen comments. */
+struct Example {
+  /** A numeric value. */
+  long value;
+};
