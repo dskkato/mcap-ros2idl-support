@@ -48,6 +48,43 @@ Use the ``--enum-as-string`` flag to return enumeration values as strings:
 python examples/cli.py --mcap-file sample.mcap --enum-as-string
 ```
 
+### Encoding example
+
+You can create CDR payloads for MCAP writing by combining
+`Ros2EncodeFactory` with the `mcap` writer API:
+
+```python
+from pathlib import Path
+from time import time_ns
+
+from mcap.writer import Writer
+from mcap_ros2idl_support import Ros2EncodeFactory
+
+schema_data = Path("example.idl").read_bytes()
+
+factory = Ros2EncodeFactory()
+writer = Writer("output.mcap")
+writer.start()
+schema_id = writer.register_schema(
+    name="example/msg/Sample",
+    encoding="ros2idl",
+    data=schema_data,
+)
+factory.register_schema(schema_id, encoding="ros2idl", data=schema_data)
+channel_id = writer.register_channel(
+    topic="/sample",
+    message_encoding="cdr",
+    schema_id=schema_id,
+)
+payload = factory.encode(schema_id, {"data": 42})
+now = time_ns()
+writer.add_message(channel_id, log_time=now, publish_time=now, data=payload)
+writer.finish()
+```
+
+The `examples/write_cdr_mcap.py` script wraps this flow so you can supply
+schema files and JSON messages directly from the command line.
+
 ## Development
 
 1. Create and activate a virtual environment:
