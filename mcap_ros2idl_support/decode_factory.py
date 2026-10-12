@@ -24,14 +24,21 @@ class Ros2DecodeFactory(DecoderFactory):
     dictionaries representing ROS 2 messages.
     """
 
-    def __init__(self, enum_as_string: bool = False) -> None:
+    def __init__(
+        self, enum_as_string: bool = False, *, array_mode: str = "bytes"
+    ) -> None:
         """Create a new :class:`Ros2DecodeFactory`.
 
         Args:
             enum_as_string: When ``True``, enumerated values are returned as
                 their string representations instead of integers.
+            array_mode: "bytes" returns uint8 arrays as bytes for speed.
+                "list" preserves the original list representation.
         """
 
+        if array_mode not in ("list", "bytes"):
+            raise ValueError("array_mode must be 'list' or 'bytes'")
+        self._array_mode = array_mode
         self._readers: dict[int, MessageReader] = {}
         self._unsupported_schema_ids: set[int] = set()
         self._enum_as_string = enum_as_string
@@ -55,6 +62,7 @@ class Ros2DecodeFactory(DecoderFactory):
         options = MessageReaderOptions(
             enumAsString=self._enum_as_string,
             rootTypeName=schema.name,
+            arrayMode=self._array_mode,
         )
         return MessageReader(parsed, options)
 

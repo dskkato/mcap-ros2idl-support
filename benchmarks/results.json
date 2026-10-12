@@ -1,0 +1,116 @@
+{
+  "python": "3.10.12",
+  "platform": "Linux",
+  "rust_build": "release, thin LTO, CPython abi3-py310",
+  "mcap_version": "1.5.0",
+  "repeat": 3,
+  "results": [
+    {
+      "file_bytes": 1668658432,
+      "total_messages": 21868,
+      "summary_message_count": 21868,
+      "decoded_messages": 21868,
+      "decoded_payload_bytes": 2939910304,
+      "schema_setup_seconds": {
+        "python": 0.07813048921525478,
+        "rust_list": 0.030140561051666737,
+        "rust": 0.03274390194565058
+      },
+      "decode_only_seconds": {
+        "python": 12.077449965290725,
+        "rust_list": 12.207615606486797,
+        "rust": 0.4456139197573066
+      },
+      "all_messages_values_equal": true,
+      "rust_array_mode": "bytes",
+      "rust_list_array_mode": "list",
+      "end_to_end_seconds": {
+        "raw": [
+          1.84541673399508,
+          1.8265463672578335,
+          1.8245980516076088
+        ],
+        "python": [
+          16.18719805032015,
+          16.03814488928765,
+          16.067937047220767
+        ],
+        "rust_list": [
+          16.863805540837348,
+          16.666498508304358,
+          16.714246951043606
+        ],
+        "rust": [
+          2.1847546473145485,
+          2.178863914683461,
+          2.1939224265515804
+        ]
+      },
+      "median_seconds": {
+        "raw": 1.8265463672578335,
+        "python": 16.067937047220767,
+        "rust_list": 16.714246951043606,
+        "rust": 2.1847546473145485
+      },
+      "end_to_end_speedup": 7.3545727740966775,
+      "decode_speedup": 27.10294591306401,
+      "sample_id": "sample_1",
+      "excluded_topic_count": 23,
+      "excluded_message_count": 0
+    },
+    {
+      "file_bytes": 1352548483,
+      "total_messages": 334,
+      "summary_message_count": 334,
+      "decoded_messages": 334,
+      "decoded_payload_bytes": 2797903685,
+      "schema_setup_seconds": {
+        "python": 0.005829185247421265,
+        "rust_list": 0.005541933700442314,
+        "rust": 0.005577820353209972
+      },
+      "decode_only_seconds": {
+        "python": 14.205479771830142,
+        "rust_list": 20.379133699461818,
+        "rust": 0.2661401554942131
+      },
+      "all_messages_values_equal": true,
+      "rust_array_mode": "bytes",
+      "rust_list_array_mode": "list",
+      "end_to_end_seconds": {
+        "raw": [
+          1.5133832730352879,
+          1.5124709578230977,
+          1.5125067345798016
+        ],
+        "python": [
+          18.224438874050975,
+          18.683451092801988,
+          18.68774356134236
+        ],
+        "rust_list": [
+          24.820047496818006,
+          24.761154426261783,
+          24.939942450262606
+        ],
+        "rust": [
+          1.7512119514867663,
+          1.7564670518040657,
+          1.7527525005862117
+        ]
+      },
+      "median_seconds": {
+        "raw": 1.5125067345798016,
+        "python": 18.683451092801988,
+        "rust_list": 24.820047496818006,
+        "rust": 1.7527525005862117
+      },
+      "end_to_end_speedup": 10.65949190576152,
+      "decode_speedup": 53.37593549327818,
+      "sample_id": "sample_2",
+      "excluded_topic_count": 0,
+      "excluded_message_count": 0
+    }
+  ],
+  "architecture": "x86_64"
+}

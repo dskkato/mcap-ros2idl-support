@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=61", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["maturin>=1.5,<2"]
+build-backend = "maturin"
 
 [project]
 name = "mcap-ros2idl-support"
@@ -34,3 +34,15 @@ line-length = 88
 
 [tool.isort]
 profile = "black"
+
+[tool.maturin]
+python-source = "."
+module-name = "mcap_ros2idl_support._native"
+exclude = ["samples/**", ".venv/**", "target/**", ".pytest_cache/**", "**/__pycache__/**"]
+include = [
+    { path = "tests/**/*.py", format = "sdist" },
+    { path = "examples/*.py", format = "sdist" },
+    { path = "benchmarks/*.py", format = "sdist" },
+    { path = "benchmarks/*.md", format = "sdist" },
+    { path = "benchmarks/*.json", format = "sdist" },
+]
