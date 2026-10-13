@@ -98,7 +98,7 @@ python examples/cli.py --mcap-file sample.mcap --enum-as-string
 
 ## Building the wheel
 
-The [Package build workflow](.github/workflows/package-build.yml) runs on pushes,
+The [Package build workflow](.github/workflows/package-build.yml) runs on branch pushes,
 pull requests, and manual dispatches. It builds and tests CPython 3.10+ abi3 wheels
 for Linux x86_64 and aarch64 (manylinux2014), macOS Apple Silicon, and Windows
 x86_64. Wheels and a source distribution are available in the workflow run's
@@ -134,6 +134,32 @@ Artifacts section.
    python -m pip install --upgrade twine
    python -m twine upload dist/*
    ```
+
+## Releasing to PyPI
+
+The [Release workflow](.github/workflows/release.yml) runs when a `v*` tag is
+pushed. It checks that the tag matches the versions in both `pyproject.toml` and
+`Cargo.toml`, builds and tests all four platform wheels, then publishes the wheels
+and source distribution to PyPI.
+
+Before the first release, create the GitHub Actions environment `pypi` and
+[configure a PyPI Trusted Publisher](https://docs.pypi.org/trusted-publishers/adding-a-publisher/)
+for the project with these values:
+
+- Owner: `dskkato`
+- Repository: `mcap-ros2idl-support`
+- Workflow filename: `release.yml`
+- Environment: `pypi`
+
+No PyPI API token secret is required. Update both package versions, commit the
+changes, and push a matching tag on that commit, for example:
+
+```bash
+git tag v0.1.3
+git push origin v0.1.3
+```
+
+Use a new version for each release; PyPI does not allow replacing published files.
 
 ## Project structure
 
