@@ -98,6 +98,12 @@ python examples/cli.py --mcap-file sample.mcap --enum-as-string
 
 ## Building the wheel
 
+The [Package build workflow](.github/workflows/package-build.yml) runs on pushes,
+pull requests, and manual dispatches. It builds and tests CPython 3.10+ abi3 wheels
+for Linux x86_64 and aarch64 (manylinux2014), macOS Apple Silicon, and Windows
+x86_64. Wheels and a source distribution are available in the workflow run's
+Artifacts section.
+
 1. Clean old artifacts:
 
    ```bash
