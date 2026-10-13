@@ -4,6 +4,8 @@
 A Python library to read and parse ROS 2 MCAP bag files without a ROS 2 runtime.
 It extracts schemas from rosbag2 messages and decodes their CDR payloads.
 
+See [CHANGELOG.md](CHANGELOG.md) for release notes and breaking changes.
+
 ## Features
 
 - Read-only parsing of MCAP/rosbag2 files without needing a ROS 2 runtime
@@ -155,8 +157,8 @@ No PyPI API token secret is required. Update both package versions, commit the
 changes, and push a matching tag on that commit, for example:
 
 ```bash
-git tag v0.1.3
-git push origin v0.1.3
+git tag v0.2.0
+git push origin v0.2.0
 ```
 
 Use a new version for each release; PyPI does not allow replacing published files.

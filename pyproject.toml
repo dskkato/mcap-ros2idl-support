@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "mcap-ros2idl-support"
-version = "0.1.3"
+version = "0.2.0"
 description = "A Python library to read and parse ROS 2 MCAP bag files without a ROS 2 runtime."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -40,6 +40,7 @@ python-source = "."
 module-name = "mcap_ros2idl_support._native"
 exclude = ["samples/**", ".venv/**", "target/**", ".pytest_cache/**", "**/__pycache__/**"]
 include = [
+    { path = "CHANGELOG.md", format = "sdist" },
     { path = "tests/**/*.py", format = "sdist" },
     { path = "examples/*.py", format = "sdist" },
     { path = "benchmarks/*.py", format = "sdist" },
