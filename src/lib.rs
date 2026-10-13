@@ -92,7 +92,7 @@ impl Decoder {
             byte_arrays,
         })
     }
-    fn read_message(&self, py: Python<'_>, data: &[u8]) -> PyResult<PyObject> {
+    fn read_message(&self, py: Python<'_>, data: &[u8]) -> PyResult<Py<PyAny>> {
         let mut r = Reader::new(data)?;
         self.read_plan(py, self.root, &mut r, 0)
     }
@@ -158,7 +158,7 @@ impl<'a> Reader<'a> {
     }
 }
 impl Decoder {
-    fn primitive(&self, py: Python<'_>, kind: &str, r: &mut Reader<'_>) -> PyResult<PyObject> {
+    fn primitive(&self, py: Python<'_>, kind: &str, r: &mut Reader<'_>) -> PyResult<Py<PyAny>> {
         macro_rules! value {
             ($v:expr) => {
                 $v.into_py_any(py)
@@ -206,13 +206,13 @@ impl Decoder {
         f: &Field,
         r: &mut Reader<'_>,
         depth: usize,
-    ) -> PyResult<PyObject> {
+    ) -> PyResult<Py<PyAny>> {
         if f.kind == "wstring" {
             return Err(PyRuntimeError::new_err(
                 "wstring is implementation-defined and therefore not supported",
             ));
         }
-        let one = |r: &mut Reader<'_>| -> PyResult<PyObject> {
+        let one = |r: &mut Reader<'_>| -> PyResult<Py<PyAny>> {
             let value = if f.kind == "complex" {
                 self.read_plan(py, f.target, r, depth + 1)?
             } else {
@@ -313,7 +313,7 @@ impl Decoder {
         index: usize,
         r: &mut Reader<'_>,
         depth: usize,
-    ) -> PyResult<PyObject> {
+    ) -> PyResult<Py<PyAny>> {
         if depth > 128 {
             return Err(PyValueError::new_err("CDR nesting exceeds 128 levels"));
         }
@@ -347,7 +347,7 @@ impl Decoder {
         Ok(d.into_any().unbind())
     }
 }
-#[pymodule]
+#[pymodule(gil_used = true)]
 fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Decoder>()
 }

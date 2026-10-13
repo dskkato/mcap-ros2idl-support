@@ -30,8 +30,14 @@
   RTPS plain XCDR2 encapsulation IDs.
 - Reproducible MCAP reading and decoding benchmarks with recorded results and
   a Python reference decoder.
+- PyO3 0.29.3 with CPython 3.10–3.15 support. Building requires maturin 1.9.4
+  or later.
 - CI builds and tests CPython 3.10+ abi3 wheels for Linux x86_64 and aarch64,
-  macOS Apple Silicon, and Windows x86_64, plus a source distribution.
+  macOS Apple Silicon and Intel, and Windows x86_64, plus a source distribution.
+  Linux x86_64 installation and execution tests reuse the same built wheel
+  across Python 3.10–3.15 without rebuilding Rust. Push-triggered builds run
+  only on `develop`; pull requests, manual dispatches, and workflow calls
+  also run the package workflow.
 - Tag-triggered PyPI publishing of tested distributions, with validation that
   the tag matches the Python and Rust package versions.
 

@@ -14,7 +14,7 @@ See [CHANGELOG.md](CHANGELOG.md) for release notes and breaking changes.
 
 ## Installation
 
-Requires CPython ≥3.10. Building from source also requires Rust and Cargo.
+Supports CPython 3.10–3.15. Building from source also requires Rust and Cargo.
 The package uses a Rust/PyO3 decoder built with maturin.
 
 Install the Python package:
@@ -100,11 +100,13 @@ python examples/cli.py --mcap-file sample.mcap --enum-as-string
 
 ## Building the wheel
 
-The [Package build workflow](.github/workflows/package-build.yml) runs on branch pushes,
-pull requests, and manual dispatches. It builds and tests CPython 3.10+ abi3 wheels
-for Linux x86_64 and aarch64 (manylinux2014), macOS Apple Silicon, and Windows
-x86_64. Wheels and a source distribution are available in the workflow run's
-Artifacts section.
+The [Package build workflow](.github/workflows/package-build.yml) runs on pushes
+to `develop`, pull requests, manual dispatches, and calls from other workflows.
+It builds and tests CPython 3.10+ abi3 wheels for Linux x86_64 and aarch64
+(manylinux2014), macOS Apple Silicon and Intel, and Windows x86_64.
+On Linux x86_64, separate jobs install and test the same built wheel on
+Python 3.10–3.15 without rebuilding Rust. Wheels and a source distribution
+are available in the workflow run's Artifacts section.
 
 1. Clean old artifacts:
 
@@ -141,8 +143,9 @@ Artifacts section.
 
 The [Release workflow](.github/workflows/release.yml) runs when a `v*` tag is
 pushed. It checks that the tag matches the versions in both `pyproject.toml` and
-`Cargo.toml`, builds and tests all four platform wheels, then publishes the wheels
-and source distribution to PyPI.
+`Cargo.toml`, builds and tests all five platform wheels, including the Linux
+Python 3.10–3.15 compatibility matrix, then publishes the wheels and source
+distribution to PyPI.
 
 Before the first release, create the GitHub Actions environment `pypi` and
 [configure a PyPI Trusted Publisher](https://docs.pypi.org/trusted-publishers/adding-a-publisher/)
