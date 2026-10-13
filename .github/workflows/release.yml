@@ -49,7 +49,7 @@ jobs:
     needs: build
     runs-on: ubuntu-24.04
     environment:
-      name: pypi
+      name: release
       url: https://pypi.org/project/mcap-ros2idl-support/
     permissions:
       id-token: write
