@@ -53,7 +53,7 @@ anonymous label and message ordinal.
 ## Results
 
 Measured on Linux x86_64, CPython 3.10.12,
-Rust 1.99.0, PyO3 0.23.5, mcap 1.5.0. Release build with thin LTO and the CPython
+Rust 1.99.0, PyO3 0.29.3, mcap 1.5.0. Release build with thin LTO and the CPython
 stable ABI for Python 3.10 and later. Full measurements are in
 [results.json](results.json).
 
@@ -61,15 +61,15 @@ End-to-end median elapsed times (seconds):
 
 | Recording | Messages | Raw MCAP | Python | Rust list | Rust bytes (default) | Speedup |
 |---|---:|---:|---:|---:|---:|---:|
-| sample_1 | 21,868 | 1.827 | 16.068 | 16.714 | 2.185 | 7.35x |
-| sample_2 | 334 | 1.513 | 18.683 | 24.820 | 1.753 | 10.66x |
+| sample_1 | 21,868 | 1.831 | 15.939 | 16.373 | 2.186 | 7.29x |
+| sample_2 | 334 | 1.535 | 18.611 | 24.945 | 1.769 | 10.52x |
 
 Decode-only totals (seconds; one validation pass):
 
 | Recording | Python | Rust list | Rust bytes | Speedup |
 |---|---:|---:|---:|---:|
-| sample_1 | 12.077 | 12.208 | 0.446 | 27.10x |
-| sample_2 | 14.205 | 20.379 | 0.266 | 53.38x |
+| sample_1 | 12.087 | 12.171 | 0.445 | 27.14x |
+| sample_2 | 14.286 | 20.642 | 0.255 | 56.07x |
 
 All 22,202 actual messages were decoded and compared successfully. No actual
 messages were excluded in either sample.
