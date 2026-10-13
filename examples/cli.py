@@ -34,7 +34,8 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    factory = Ros2DecodeFactory(enum_as_string=args.enum_as_string)
+    # JSON output requires byte arrays to use the compatible list representation.
+    factory = Ros2DecodeFactory(enum_as_string=args.enum_as_string, array_mode="list")
 
     with open(args.mcap_file, "rb") as f:
         reader = make_reader(f, decoder_factories=[factory])

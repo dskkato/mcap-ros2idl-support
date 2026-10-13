@@ -1,0 +1,18 @@
+[package]
+name = "mcap-ros2idl-support"
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
+description = "Native CDR decoder for mcap-ros2idl-support"
+include = ["src/**", "Cargo.toml", "Cargo.lock", "LICENSE", "README.md", "DESIGN.md", "CHANGELOG.md"]
+
+[lib]
+name = "_native"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.29.3", features = ["abi3-py310"] }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
