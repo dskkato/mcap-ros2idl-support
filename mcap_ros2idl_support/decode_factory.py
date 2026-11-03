@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Callable, Optional
 
 from mcap.decoder import DecoderFactory
@@ -13,6 +14,8 @@ from mcap_ros2idl_support.rosmsg2_serialization import (
     MessageReader,
     MessageReaderOptions,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class Ros2DecodeFactory(DecoderFactory):
@@ -44,18 +47,26 @@ class Ros2DecodeFactory(DecoderFactory):
         self._enum_as_string = enum_as_string
 
     def _build_reader(self, schema: Schema) -> Optional[MessageReader]:
-        if schema.encoding == "ros2idl":
-            try:
+        try:
+            if schema.encoding == "ros2idl":
+                # Parsing can fail for some schemas, such as those
+                # containing union types.
                 parsed = parse_ros2idl(schema.data.decode("utf-8"))
-            except AttributeError as e:
-                # When the schema contains union types, the parsing may fail
-                print(f"Error parsing ros2idl for schema ID {schema.id}: {e}")
+            elif schema.encoding == "ros2msg":
+                parsed = parse_ros2msg(schema.data.decode("utf-8"))
+            else:
+                logger.warning(
+                    "Unknown schema encoding %r for schema ID %d",
+                    schema.encoding,
+                    schema.id,
+                )
                 return None
-        elif schema.encoding == "ros2msg":
-            parsed = parse_ros2msg(schema.data.decode("utf-8"))
-        else:
-            print(
-                f"Unknown schema encoding: {schema.encoding} for schema ID: {schema.id}"
+        except Exception:
+            logger.warning(
+                "Failed to parse %s schema for schema ID %d",
+                schema.encoding,
+                schema.id,
+                exc_info=True,
             )
             return None
 

@@ -1,3 +1,4 @@
+import logging
 import struct
 
 from mcap.reader import make_reader
@@ -102,3 +103,47 @@ def test_decoder_caches_unsupported_schema(monkeypatch):
     monkeypatch.setattr("mcap_ros2idl_support.decode_factory.parse_ros2idl", fail)
 
     assert factory.decoder_for("cdr", schema) is None
+
+
+def test_parse_failure_is_logged_and_cached(monkeypatch, caplog):
+    factory = Ros2DecodeFactory()
+    schema = Schema(
+        id=2,
+        name="example/Broken",
+        encoding="ros2idl",
+        data=b"struct Msg { uint32 value; };",
+    )
+
+    calls = 0
+
+    def fail(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        raise AttributeError("simulated union parse failure")
+
+    monkeypatch.setattr("mcap_ros2idl_support.decode_factory.parse_ros2idl", fail)
+
+    with caplog.at_level(logging.WARNING, logger="mcap_ros2idl_support.decode_factory"):
+        assert factory.decoder_for("cdr", schema) is None
+
+    assert "Failed to parse ros2idl schema for schema ID 2" in caplog.text
+    assert calls == 1
+
+    # The negative result is cached: parsing is not attempted again.
+    assert factory.decoder_for("cdr", schema) is None
+    assert calls == 1
+
+
+def test_unknown_encoding_is_logged(caplog):
+    factory = Ros2DecodeFactory()
+    schema = Schema(
+        id=3,
+        name="example/Unknown",
+        encoding="protobuf",
+        data=b"",
+    )
+
+    with caplog.at_level(logging.WARNING, logger="mcap_ros2idl_support.decode_factory"):
+        assert factory.decoder_for("cdr", schema) is None
+
+    assert "Unknown schema encoding 'protobuf' for schema ID 3" in caplog.text

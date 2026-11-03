@@ -1,6 +1,16 @@
 # Changelog
 
-## 0.2.0 (Unreleased)
+## Unreleased
+
+### Changed
+
+- `Ros2DecodeFactory` reports schema parse and unknown-encoding failures
+  through the `mcap_ros2idl_support.decode_factory` logger instead of
+  `print`. Any schema parse failure is now treated as an unsupported
+  schema and cached, rather than only `AttributeError`; other exceptions
+  no longer abort message iteration.
+
+## 0.2.0
 
 ### Breaking changes
 
