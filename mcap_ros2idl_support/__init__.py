@@ -6,5 +6,11 @@ from mcap_ros2idl_support.rosmsg2_serialization import (
 )
 
 from .decode_factory import Ros2DecodeFactory
+from .encode_factory import Ros2EncodeFactory
 
-__all__ = ["MessageReader", "MessageReaderOptions", "Ros2DecodeFactory"]
+__all__ = [
+    "MessageReader",
+    "MessageReaderOptions",
+    "Ros2DecodeFactory",
+    "Ros2EncodeFactory",
+]
